@@ -3,6 +3,8 @@
 
 #endif // AUTHENTICATION_HPP
 
+#include <sodium.h>
+
 static void BM_crypto_manybuf_split(benchmark::State& state) {
 	if (sodium_init() == -1) {
 		throw std::runtime_error("Fail to init sodium");
@@ -26,7 +28,6 @@ static void BM_crypto_manybuf_split(benchmark::State& state) {
 		}
 		crypto_onetimeauth_final(&state, out);
 	}
-	state.SetBytesProcessed(state.range(0));
 }
 
 static void BM_crypto_manybuf_onetimeAuth(benchmark::State& state) {
@@ -39,6 +40,7 @@ static void BM_crypto_manybuf_onetimeAuth(benchmark::State& state) {
 	size_t msg_len01 = state.range(0);
 	size_t msg_len02 = msg_len01;
 
+
 	while (state.KeepRunning()) {
 		unsigned char out[crypto_onetimeauth_BYTES];
 		unsigned char key[crypto_onetimeauth_KEYBYTES];
@@ -50,8 +52,8 @@ static void BM_crypto_manybuf_onetimeAuth(benchmark::State& state) {
 		crypto_onetimeauth_update(&state, reinterpret_cast<const unsigned char *>(msg01.c_str()), msg_len01);
 		crypto_onetimeauth_update(&state, reinterpret_cast<const unsigned char *>(msg02.c_str()), msg_len02);
 		crypto_onetimeauth_final(&state, out);
+
 	}
-	state.SetBytesProcessed(state.range(0));
 }
 
 static void BM_crypto_single_onetimeAuth(benchmark::State& state) {
@@ -67,9 +69,7 @@ static void BM_crypto_single_onetimeAuth(benchmark::State& state) {
 
 		randombytes_buf(key, sizeof key);
 		crypto_onetimeauth(out, reinterpret_cast<const unsigned char *>(msg.c_str()), msg_len, key);
-
 	}
-	state.SetBytesProcessed(state.range(0));
 }
 
 static void BM_crypto_single_onetimeAuth_and_verify(benchmark::State& state) {
@@ -89,6 +89,7 @@ static void BM_crypto_single_onetimeAuth_and_verify(benchmark::State& state) {
 		if (crypto_onetimeauth_verify(out,  reinterpret_cast<const unsigned char *>(msg.c_str()), msg_len, key) != 0) {
 				/* message forged! */
 		}
+		//state.SetBytesProcessed(state.range(0)); // it seems to now work propertly, don't know why this function
+												   //includes amount of iteration in his calculation
 	}
-	state.SetBytesProcessed(state.range(0));
 }

@@ -27,7 +27,7 @@ static void bubble_sort(benchmark::State& state) {
 	size_t length = state.range(0);
 	std::vector<std::string> vec;
 	for (size_t i = 0; i < length; ++i) {
-		vec.push_back(generate_random_string(20));
+		vec.emplace_back(generate_random_string(20));
 	}
 
 	while (state.KeepRunning()) {
@@ -41,7 +41,7 @@ static void std_sort(benchmark::State& state) {
 	size_t length = state.range(0);
 	std::vector<std::string> vec;
 	for (size_t i = 0; i < length; ++i) {
-		vec.push_back(generate_random_string(20));
+		vec.emplace_back(generate_random_string(20));
 	}
 
 	while (state.KeepRunning()) {
