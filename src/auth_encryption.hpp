@@ -4,6 +4,8 @@
 #include <sodium.h>
 #include <thread>
 #include <memory>
+#include <atomic>
+#include <mutex>
 #include "utils.hpp"
 
 struct cryptobox_keypair {
@@ -70,53 +72,6 @@ std::vector<char> cryptobox_decrypt (std::vector<char> &cipher,
 	return msg;
 }
 
-std::vector<std::vector<char>> cryptobox_thread_encrypt(std::vector<char> &msg,
-									std::array<char, crypto_box_NONCEBYTES> &nonce,
-									std::array<unsigned char, crypto_box_PUBLICKEYBYTES> &public_key,
-									std::array<unsigned char, crypto_box_SECRETKEYBYTES> &secret_key,
-									size_t num_of_thread) {
-
-		try {
-	if(num_of_thread > msg.size()) {
-		std::cout << "num_of_thread > msg.size() ... setting max: threads = vec.size()\n";
-		num_of_thread = msg.size();
-	}
-	std::cout << char_vector_tostring(msg, false) << " =? ";
-	std::vector<std::vector<char>> splited = split_char_vector(msg, num_of_thread);
-	std::cout << print_splitted_char_vector(splited);
-
-
-	std::vector<std::thread> vec_Thread(splited.size());
-	std::vector<std::vector<char>> results(splited.size());
-	for (size_t i = 0; i < splited.size(); ++i) {
-		vec_Thread.emplace_back( std::thread ([&](){
-			//cryptobox_encrypt_thr(results.at(i),splited.at(i),nonce,public_key,secret_key);
-		}));
-	}
-
-	for(auto &th_ptr : vec_Thread) {
-		th_ptr.join();
-	}
-	return results;
-		} catch (std::exception &ex) {
-			std::cout << ex.what() << '\n';
-		}
-}
-// detached versions
-//int crypto_box_detached(unsigned char *c, unsigned char *mac,
-//						const unsigned char *m,
-//						unsigned long long mlen,
-//						const unsigned char *n,
-//						const unsigned char *pk,
-//						const unsigned char *sk);
-//int crypto_box_open_detached(unsigned char *m,
-//							 const unsigned char *c,
-//							 const unsigned char *mac,
-//							 unsigned long long clen,
-//							 const unsigned char *n,
-//							 const unsigned char *pk,
-//							 const unsigned char *sk);
-
 static void BM_crypto_box_auth_encryption(benchmark::State& state) {
 	if (sodium_init() == -1) {
 		throw std::runtime_error("Fail to init sodium");
@@ -159,30 +114,5 @@ static void BM_crypto_box_auth_encrypt_decrypt(benchmark::State& state) {
 	}
 }
 
-static void BM_threaded_auth_encrypt_decrypt(benchmark::State& state) {
-	if (sodium_init() == -1) {
-		throw std::runtime_error("Fail to init sodium");
-	}
-	cryptobox_keypair alice_keys (generate_kyepair());
-	cryptobox_keypair bob_keys (generate_kyepair());
-
-	size_t msg_length = state.range(0);
-	std::vector<char> msg(generate_random_char_vector(msg_length));
-	std::vector<std::vector<char>> cipher;
-
-	std::array<char, crypto_box_NONCEBYTES> nonce;
-
-	//for (int i = 1; i <4; ++i) {
-	//	cipher = cryptobox_thread_encrypt(msg,nonce,bob_keys.public_key,alice_keys.secret_key,i);
-	//}
-
-	while (state.KeepRunning()) {
-		nonce = generate_random_char_array<crypto_box_NONCEBYTES>();
-
-		cipher = cryptobox_thread_encrypt(msg,nonce,bob_keys.public_key,alice_keys.secret_key,2);
-		std::cout << "LALA" << print_splitted_char_vector(cipher,true);
-	}
-
-}
 
 #endif // AUTH_ENCRYPTION_HPP

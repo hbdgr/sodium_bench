@@ -9,6 +9,7 @@
 #include "authentication.hpp"
 #include "encryption.hpp"
 #include "auth_encryption.hpp"
+#include "multithread_encryption.hpp"
 
 //BENCHMARK(bubble_sort)->RangeMultiplier(2)->Range(2, 8<<8)->Complexity();
 //BENCHMARK(std_sort)->RangeMultiplier(2)->Range(2, 8<<8)->Complexity();
@@ -23,9 +24,22 @@
 //BENCHMARK(BM_crypto_single_onetimeAuth_and_verify)->RangeMultiplier(2)->Range(2, 8<<22);
 //BENCHMARK(BM_simple_XSalsa20_encryption)->RangeMultiplier(2)->Range(2, 8<<22);
 //BENCHMARK(BM_simple_XSalsa20_encryption_and_decryption)->RangeMultiplier(2)->Range(2, 8<<22);
-//BENCHMARK(BM_crypto_box_auth_encryption)->RangeMultiplier(2)->Range(2, 8<<22);
-//BENCHMARK(BM_crypto_box_auth_encrypt_decrypt)->RangeMultiplier(2)->Range(2, 8<<22);
-BENCHMARK(BM_threaded_auth_encrypt_decrypt)->Arg(100);
+
+//BENCHMARK(BM_crypto_box_auth_encryption)->RangeMultiplier(2)->Range(2, 8<<16);
+//BENCHMARK(BM_crypto_box_auth_encrypt_decrypt)->RangeMultiplier(2)->Range(2, 8<<16);
+
+constexpr size_t Max_inputArg = 8 << 16;
+BENCHMARK(BM_threaded_auth_encrypt)->RangeMultiplier(2)->Range(4, Max_inputArg)->Threads(1);
+BENCHMARK(BM_threaded_auth_encrypt)->RangeMultiplier(2)->Range(4, Max_inputArg)->Threads(2);
+BENCHMARK(BM_threaded_auth_encrypt)->RangeMultiplier(2)->Range(4, Max_inputArg)->Threads(3);
+BENCHMARK(BM_threaded_auth_encrypt)->RangeMultiplier(2)->Range(4, Max_inputArg)->Threads(4);
+BENCHMARK(BM_threaded_auth_encrypt)->RangeMultiplier(2)->Range(4, Max_inputArg)->Threads(8);
+
+BENCHMARK(BM_threaded_auth_encrypt_decrypt)->RangeMultiplier(2)->Range(4, Max_inputArg)->Threads(1);
+BENCHMARK(BM_threaded_auth_encrypt_decrypt)->RangeMultiplier(2)->Range(4, Max_inputArg)->Threads(2);
+BENCHMARK(BM_threaded_auth_encrypt_decrypt)->RangeMultiplier(2)->Range(4, Max_inputArg)->Threads(3);
+BENCHMARK(BM_threaded_auth_encrypt_decrypt)->RangeMultiplier(2)->Range(4, Max_inputArg)->Threads(4);
+BENCHMARK(BM_threaded_auth_encrypt_decrypt)->RangeMultiplier(2)->Range(4, Max_inputArg)->Threads(8);
 
 //BENCHMARK(run_unit_tests);
 
