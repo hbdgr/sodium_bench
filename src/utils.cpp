@@ -27,7 +27,7 @@ std::vector<char> generate_random_char_vector(size_t length) {
 	return vec;
 }
 
-// TODO limited work! fail for example for 58 bytes and 14 parts
+
 std::vector<std::vector<char> > split_char_vector(std::vector<char> &vec, size_t parts_num) {
 	assert(parts_num > 0  && "Can not part to zero parts");
 	assert(vec.size() > 0 && "Can not part zero size vector");
@@ -39,13 +39,14 @@ std::vector<std::vector<char> > split_char_vector(std::vector<char> &vec, size_t
 
 	std::vector<std::vector<char>> vec_parts;
 
+	size_t actual_pos = 0;
 	size_t main_len = vec.size();
 	for (size_t i = 0;i < parts_num; ++i) {
-		double beg_dist = i*(main_len/static_cast<double>(parts_num));
-		double end_dist = (parts_num-i-1)*(main_len/static_cast<double>(parts_num));
+		double end_dist = (i+1)*(main_len/static_cast<double>(parts_num));
 
-		auto begin_pos = vec.begin() + std::floor(beg_dist);
-		auto end_pos = vec.end() - std::ceil(end_dist);
+		auto begin_pos = vec.begin() + actual_pos;
+		actual_pos = std::ceil(end_dist);
+		auto end_pos = vec.end() - ((actual_pos >= main_len) ? 0 : (main_len - actual_pos));
 
 		vec_parts.push_back(std::vector<char>(begin_pos, end_pos));
 	}

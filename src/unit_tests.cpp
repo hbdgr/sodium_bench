@@ -68,11 +68,10 @@ void test_split_vec02() {
 void test_split_vec03() {
 
 	std::vector<char> test_vec;
-	for (unsigned long long i = 1; i < 300000 ; ++i) {
+	for (unsigned long long i = 1; i < 1000 ; ++i) {
 		test_vec = generate_random_char_vector(i);
 		std::cout << "msg length = " << i << '\n';
-		//test_vec = std::vector<char>('a',i);
-		for (size_t j = 1; j < 14; ++j) {
+		for (size_t j = 1; j < 1000; ++j) {
 			auto splitted_vec = split_char_vector(test_vec, j);
 
 			std::string left = char_vector_tostring(test_vec,false);
@@ -81,10 +80,10 @@ void test_split_vec03() {
 				right += char_vector_tostring(i,false);
 			}
 			if (left != right) {
-				std::cout << "FALSE to split i:[" << i << "] j:"<< j <<"]\n";
-				std::cout << "left: " << left << '\n';
-				std::cout << "rigt: " << right<< '\n';
-				assert(false);
+				std::cout << "FALSE to split i:[" << i << "] j:["<< j <<"]\n";
+				std::cout << "left: " << left << "size: " << left.size() << '\n';
+				std::cout << "rigt: " << right<< "size: " << right.size() << '\n';
+				throw std::runtime_error("fail to split");
 			}
 		}
 		test_vec.clear();
@@ -93,7 +92,7 @@ void test_split_vec03() {
 }
 
 void run_unit_tests(benchmark::State &state) {
-	test_split_vec01();
-	test_split_vec02();
+	//test_split_vec01();
+	//test_split_vec02();
 	test_split_vec03();
 }
