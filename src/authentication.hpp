@@ -89,7 +89,7 @@ static void BM_crypto_single_onetimeAuth_and_verify(benchmark::State& state) {
 		if (crypto_onetimeauth_verify(out,  reinterpret_cast<const unsigned char *>(msg.c_str()), msg_len, key) != 0) {
 				/* message forged! */
 		}
-		//state.SetBytesProcessed(state.range(0)); // it seems to now work propertly, don't know why this function
+		state.SetBytesProcessed(state.bytes_processed()); // it seems to now work propertly, don't know why this function
 												   //includes amount of iteration in his calculation
 	}
 }

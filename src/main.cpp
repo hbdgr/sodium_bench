@@ -21,14 +21,14 @@
 //BENCHMARK(BM_crypto_single_onetimeAuth)->Unit(benchmark::kMicrosecond);
 
 //BENCHMARK(BM_crypto_single_onetimeAuth)->RangeMultiplier(2)->Range(2, 8<<22);
-//BENCHMARK(BM_crypto_single_onetimeAuth_and_verify)->RangeMultiplier(2)->Range(2, 8<<22);
+//BENCHMARK(BM_crypto_single_onetimeAuth_and_verify)->RangeMultiplier(2)->Range(2, 8<<25);
 //BENCHMARK(BM_simple_XSalsa20_encryption)->RangeMultiplier(2)->Range(2, 8<<22);
 //BENCHMARK(BM_simple_XSalsa20_encryption_and_decryption)->RangeMultiplier(2)->Range(2, 8<<22);
 
 //BENCHMARK(BM_crypto_box_auth_encryption)->RangeMultiplier(2)->Range(2, 8<<16);
 //BENCHMARK(BM_crypto_box_auth_encrypt_decrypt)->RangeMultiplier(2)->Range(2, 8<<16);
 
-constexpr size_t Max_inputArg = 8 << 16;
+constexpr size_t Max_inputArg = 8 << 18;
 BENCHMARK(BM_threaded_auth_encrypt)->RangeMultiplier(2)->Range(4, Max_inputArg)->Threads(1);
 BENCHMARK(BM_threaded_auth_encrypt)->RangeMultiplier(2)->Range(4, Max_inputArg)->Threads(2);
 BENCHMARK(BM_threaded_auth_encrypt)->RangeMultiplier(2)->Range(4, Max_inputArg)->Threads(3);

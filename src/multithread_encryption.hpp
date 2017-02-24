@@ -9,6 +9,7 @@
 #include "utils.hpp"
 #include "auth_encryption.hpp"
 
+// 12 becouse split char vector function don't works for larger values
 constexpr size_t Max_Threads = 12;
 
 struct static_container {
@@ -47,7 +48,6 @@ struct static_container {
 			m_m.reset(nullptr);
 		}
 	}
-
 private:
 	static_container(static_container const&) = delete;
 	void operator=(static_container const&) = delete;
@@ -55,13 +55,14 @@ private:
 	static_container(size_t threads, size_t msg_length) {
 		for(size_t i = 0; i < Max_Threads; ++i) {
 
-			i < threads ? if_finish.at(i) = false
-						: if_finish.at(i) = true;
-
+			// not run threds if is not necessary
+			i < threads && i < msg_length  ? if_finish.at(i) = false
+											: if_finish.at(i) = true;
 		}
 
 		alice_keys = generate_kyepair();
 		bob_keys = generate_kyepair();
+		nonce = generate_random_char_array<crypto_box_NONCEBYTES>();
 
 		msg = generate_random_char_vector(msg_length);
 		//std::cout << "ctor: MSG_LENGTH: " << msg_length << '\n';
@@ -86,16 +87,17 @@ static void BM_threaded_auth_encrypt(benchmark::State& state) {
 
 	static_container &mbag = static_container::get_m(state.threads, state.range(0));
 
+	// not run thread if is not necessary
+	if (mbag.if_finish.at(state.thread_index) == true) {
+		return;
+	}
+
 	if (state.thread_index == 0) {
 		// Setup code here.
 	}
-	//splitted_msg.at(0);
+
 	while (state.KeepRunning()) {
-		//nonce = generate_random_char_array<crypto_box_NONCEBYTES>();
-		//mtx.lock();
-		//std::cout << "Im thread nr:" << state.thread_index
-		//		  << " My part of data to enctypt SZIE:" << char_vector_tostring(mbag.splitted_msg.at(state.thread_index));
-		//mtx.unlock();
+
 		mbag.cipher.at(state.thread_index) = cryptobox_encrypt(mbag.splitted_msg.at(state.thread_index),
 														  mbag.nonce,
 														  mbag.bob_keys.public_key,
@@ -123,16 +125,17 @@ static void BM_threaded_auth_encrypt_decrypt(benchmark::State& state) {
 
 	static_container &mbag = static_container::get_m(state.threads, state.range(0));
 
+	// not run thread if is not necessary
+	if (mbag.if_finish.at(state.thread_index) == true) {
+		return;
+	}
+
 	if (state.thread_index == 0) {
 		// Setup code here.
 	}
-	//splitted_msg.at(0);
+
 	while (state.KeepRunning()) {
-		//nonce = generate_random_char_array<crypto_box_NONCEBYTES>();
-		//mtx.lock();
-		//std::cout << "Im thread nr:" << state.thread_index
-		//		  << " My part of data to enctypt SZIE:" << char_vector_tostring(mbag.splitted_msg.at(state.thread_index));
-		//mtx.unlock();
+
 		mbag.cipher.at(state.thread_index) = cryptobox_encrypt(mbag.splitted_msg.at(state.thread_index),
 														  mbag.nonce,
 														  mbag.bob_keys.public_key,

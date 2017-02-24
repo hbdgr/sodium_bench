@@ -3,6 +3,7 @@
 
 readonly FILENAME="results.txt"
 readonly PROGNAME="sodium_bench"
+readonly GNUPLOT_DATA_DIR="data_files"
 
 function run_benchmark() {
 	local program_name=$1
@@ -44,7 +45,7 @@ function calc_Mbps() {
 	printf "${Mbps}"
 }
 
-function read_result() {
+function gen_data_Mbps() {
 	printf "Start reading / Analyze\n"
 
 	while read line; do
@@ -54,10 +55,43 @@ function read_result() {
 		fi
 
 		local size=`echo $line | awk -F'/' '{ print $2 }' | awk '{ print $1 }'`
-		local time=`echo $line | awk -F'/' '{ print $2 }' | awk '{ print $2 }'`
+		local time=`echo $line | awk '{ print $2 }'`
 
 		local Mbps=`calc_Mbps "${size}" "${time}"`
+
 		printf "${line} | "${Mbps}" Mbps\n"
+
+	done < "${FILENAME}"
+}
+
+function clean_gnuplot_data() {
+	pushd ${GNUPLOT_DATA_DIR}
+		#rm *.data
+	popd
+}
+
+function gen_data_Mbps_gunpfiles() {
+	printf "Start generating files in ${GNUPLOT_DATA_DIR}\n"
+	clean_gnuplot_data
+
+	while read line; do
+		# results that we analyze should have name with "BM"
+		if [[ $line != *"BM"* ]]; then
+			continue
+		fi
+
+		local fun_name=`echo $line | awk -F'/' '{ print $1 }'`
+		local threads=`echo $line | awk -F"threads:" '{ print $2  }' | awk '{ print $1 }'`
+		local size=`echo $line | awk -F'/' '{ print $2 }' | awk '{ print $1 }'`
+		local time=`echo $line | awk '{ print $2 }'`
+		local cpu_time=`echo $line | awk '{ print $4 }'`
+
+		local Mbps=`calc_Mbps "${size}" "${time}"`
+
+		#printf "th [${threads}] fun_name [${fun_name}]\n"
+		printf "`to_bytes ${size}` ${time}\n" >> "${GNUPLOT_DATA_DIR}/${fun_name}-${threads}-latency.data"
+		printf "`to_bytes ${size}` ${Mbps}\n" >> "${GNUPLOT_DATA_DIR}/${fun_name}-${threads}-Mbps.data"
+		printf "`to_bytes ${size}` ${cpu_time}\n" >> "${GNUPLOT_DATA_DIR}/${fun_name}-${threads}-cpu_time.data"
 
 	done < "${FILENAME}"
 }
@@ -71,6 +105,7 @@ cat <<- EOF
 	OPTIONS:
 	    -r --run-bench           run ${PROGNAME} binary with google benchmarks and save results to ${FILENAME}
 	    -a --analyze             analyze  benchmark results from ${PROGNAME}
+	    -g --gen-plot-data       generate data to plot in ./data_files dir
 	    -h --help                show this help
 EOF
 }
@@ -85,6 +120,7 @@ cmdline() {
 			#translate --gnu-long-options to -g (short options)
 			--run-bench)            args="${args}-r ";;
 			--analyze)              args="${args}-a ";;
+			--gen-plot-data)        args="${args}-g ";;
 			--help)                 args="${args}-h ";;
 			#pass through anything else
 			*) [[ "${arg:0:1}" == "-" ]] || delim="\""
@@ -95,7 +131,7 @@ cmdline() {
 	#Reset the positional parameters to the short options
 	eval set -- $args
 
-	while getopts "hra" OPTION; do
+	while getopts "hrag" OPTION; do
 		case $OPTION in
 		r)
 			set -o errexit
@@ -105,7 +141,12 @@ cmdline() {
 		a)
 			set -o errexit
 			set -o nounset
-			read_result
+			gen_data_Mbps
+			;;
+		g)
+			set -o errexit
+			set -o nounset
+			gen_data_Mbps_gunpfiles
 			;;
 		h)
 			usage
