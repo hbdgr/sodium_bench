@@ -10,7 +10,7 @@
 #include "auth_encryption.hpp"
 
 // 12 becouse split char vector function don't works for larger values
-constexpr size_t Max_Threads = 12;
+constexpr size_t Max_Threads = 128;
 
 struct static_container {
 	static std::mutex mtx;
@@ -83,6 +83,10 @@ std::mutex static_container::mtx;
 std::mutex static_container::mtx_clean;
 std::unique_ptr<static_container> static_container::m_m(nullptr);
 
+
+//static void BM_threaded_onetimeAuth(benchmark::State& state) {
+
+
 static void BM_threaded_auth_encrypt(benchmark::State& state) {
 
 	static_container &mbag = static_container::get_m(state.threads, state.range(0));
@@ -97,6 +101,7 @@ static void BM_threaded_auth_encrypt(benchmark::State& state) {
 	}
 
 	while (state.KeepRunning()) {
+		auto start = std::chrono::high_resolution_clock::now();
 
 		mbag.cipher.at(state.thread_index) = cryptobox_encrypt(mbag.splitted_msg.at(state.thread_index),
 														  mbag.nonce,
@@ -104,6 +109,11 @@ static void BM_threaded_auth_encrypt(benchmark::State& state) {
 														  mbag.alice_keys.secret_key);
 
 		mbag.if_finish.at(state.thread_index) = true;
+
+		auto end = std::chrono::high_resolution_clock::now();
+
+		auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
+		state.SetIterationTime(elapsed_seconds.count());
 	}
 
 	if (state.thread_index == 0) {
@@ -135,17 +145,22 @@ static void BM_threaded_auth_encrypt_decrypt(benchmark::State& state) {
 	}
 
 	while (state.KeepRunning()) {
-
+		auto start = std::chrono::high_resolution_clock::now();
 		mbag.cipher.at(state.thread_index) = cryptobox_encrypt(mbag.splitted_msg.at(state.thread_index),
-														  mbag.nonce,
-														  mbag.bob_keys.public_key,
-														  mbag.alice_keys.secret_key);
+															   mbag.nonce,
+															   mbag.bob_keys.public_key,
+															   mbag.alice_keys.secret_key);
 
 		mbag.check_result.at(state.thread_index) = cryptobox_decrypt(mbag.cipher.at(state.thread_index),
-														  mbag.nonce,
-														  mbag.bob_keys.public_key,
-														  mbag.alice_keys.secret_key);
+																	 mbag.nonce,
+																	 mbag.bob_keys.public_key,
+																	 mbag.alice_keys.secret_key);
 		mbag.if_finish.at(state.thread_index) = true;
+
+		auto end = std::chrono::high_resolution_clock::now();
+
+		auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
+		state.SetIterationTime(elapsed_seconds.count());
 	}
 
 	if (state.thread_index == 0) {
