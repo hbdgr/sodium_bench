@@ -4,6 +4,7 @@
 readonly FILENAME="results.txt"
 readonly PROGNAME="sodium_bench"
 readonly GNUPLOT_DATA_DIR="data_files"
+readonly OUTPUT="output"
 
 function run_benchmark() {
 	local program_name=$1
@@ -63,16 +64,36 @@ function gen_data_Mbps() {
 
 	done < "${FILENAME}"
 }
+function is_dir() {
+	local dir="$1"
+	[[ -d "$dir" ]]
+}
 
 function clean_gnuplot_data() {
-	pushd ${GNUPLOT_DATA_DIR}
-		#rm *.data
-	popd
+	is_dir ${GNUPLOT_DATA_DIR} \
+		&& echo "deleting gnuplot data directory: ${GNUPLOT_DATA_DIR}" \
+		&& rm -rf ${GNUPLOT_DATA_DIR}
+
+	is_dir ${OUTPUT} \
+		&& echo "deleting gnuplot data directory: ${OUTPUT}" \
+		&& rm -rf ${OUTPUT}
+
+	mkdir ${GNUPLOT_DATA_DIR}
+	mkdir ${OUTPUT}
+}
+
+function gen_charts() {
+
+	#declare -a gnuplot_files=`find -type f -name "*.gnuplot"`
+	find -type f -name "*.gnuplot" \
+		| while read file; do
+			echo "ploting: ${file}"
+			gnuplot ${file}
+		done
 }
 
 function gen_data_Mbps_gunpfiles() {
 	printf "Start generating files in ${GNUPLOT_DATA_DIR}\n"
-	clean_gnuplot_data
 
 	while read line; do
 		# results that we analyze should have name with "BM"
@@ -146,7 +167,9 @@ cmdline() {
 		g)
 			set -o errexit
 			set -o nounset
+			clean_gnuplot_data
 			gen_data_Mbps_gunpfiles
+			gen_charts
 			;;
 		h)
 			usage
