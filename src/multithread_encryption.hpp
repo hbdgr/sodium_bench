@@ -89,18 +89,19 @@ std::unique_ptr<static_container> static_container::m_m(nullptr);
 
 static void BM_threaded_auth_encrypt(benchmark::State& state) {
 
-	static_container &mbag = static_container::get_m(state.threads, state.range(0));
-
-	// not run thread if is not necessary
-	if (mbag.if_finish.at(state.thread_index) == true) {
-		return;
-	}
-
 	if (state.thread_index == 0) {
 		// Setup code here.
 	}
 
 	while (state.KeepRunning()) {
+
+		static_container &mbag = static_container::get_m(state.threads, state.range(0));
+
+		// not run thread if is not necessary
+		if (mbag.if_finish.at(state.thread_index) == true) {
+			return;
+		}
+
 		auto start = std::chrono::high_resolution_clock::now();
 
 		mbag.cipher.at(state.thread_index) = cryptobox_encrypt(mbag.splitted_msg.at(state.thread_index),
@@ -108,9 +109,9 @@ static void BM_threaded_auth_encrypt(benchmark::State& state) {
 														  mbag.bob_keys.public_key,
 														  mbag.alice_keys.secret_key);
 
-		mbag.if_finish.at(state.thread_index) = true;
-
 		auto end = std::chrono::high_resolution_clock::now();
+
+		mbag.if_finish.at(state.thread_index) = true;
 
 		auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
 		state.SetIterationTime(elapsed_seconds.count());
@@ -133,18 +134,18 @@ static void BM_threaded_auth_encrypt(benchmark::State& state) {
 
 static void BM_threaded_auth_encrypt_decrypt(benchmark::State& state) {
 
-	static_container &mbag = static_container::get_m(state.threads, state.range(0));
-
-	// not run thread if is not necessary
-	if (mbag.if_finish.at(state.thread_index) == true) {
-		return;
-	}
-
 	if (state.thread_index == 0) {
 		// Setup code here.
 	}
 
 	while (state.KeepRunning()) {
+		static_container &mbag = static_container::get_m(state.threads, state.range(0));
+
+		// not run thread if is not necessary
+		if (mbag.if_finish.at(state.thread_index) == true) {
+			return;
+		}
+
 		auto start = std::chrono::high_resolution_clock::now();
 		mbag.cipher.at(state.thread_index) = cryptobox_encrypt(mbag.splitted_msg.at(state.thread_index),
 															   mbag.nonce,
@@ -155,9 +156,9 @@ static void BM_threaded_auth_encrypt_decrypt(benchmark::State& state) {
 																	 mbag.nonce,
 																	 mbag.bob_keys.public_key,
 																	 mbag.alice_keys.secret_key);
-		mbag.if_finish.at(state.thread_index) = true;
-
 		auto end = std::chrono::high_resolution_clock::now();
+
+		mbag.if_finish.at(state.thread_index) = true;
 
 		auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
 		state.SetIterationTime(elapsed_seconds.count());
