@@ -9,7 +9,6 @@
 #include "utils.hpp"
 #include "auth_encryption.hpp"
 
-// 12 becouse split char vector function don't works for larger values
 constexpr size_t Max_Threads = 128;
 
 struct static_container {
@@ -65,17 +64,11 @@ private:
 		nonce = generate_random_char_array<crypto_box_NONCEBYTES>();
 
 		msg = generate_random_char_vector(msg_length);
-		//std::cout << "ctor: MSG_LENGTH: " << msg_length << '\n';
-		//std::cout << "ALL DATA: " << char_vector_tostring(msg);
 
 		splitted_msg = split_char_vector(msg, threads);
 		cipher.resize(threads);
 		check_result.resize(threads);
 
-		//std::cout << "DEBUG PARTS: ";
-		//for (auto &i : splitted_msg) {
-		//	std::cout << char_vector_tostring(i,false) << " ";
-		//} std::cout << '\n';
 	}
 	static std::unique_ptr<static_container> m_m;
 };
@@ -115,20 +108,20 @@ static void BM_threaded_auth_encrypt(benchmark::State& state) {
 
 		auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
 		state.SetIterationTime(elapsed_seconds.count());
-	}
 
-	if (state.thread_index == 0) {
-		bool all_finish = false;
-		while(!all_finish) {
-			for (const auto &b : mbag.if_finish) {
-				all_finish = true;
-				if(b == false) {
-					all_finish = false;
+		if (state.thread_index == 0) {
+			bool all_finish = false;
+			while(!all_finish) {
+				for (const auto &b : mbag.if_finish) {
+					all_finish = true;
+					if(b == false) {
+						all_finish = false;
+					}
 				}
+				std::this_thread::yield();
 			}
-			std::this_thread::yield();
+			mbag.clear_container();
 		}
-		mbag.clear_container();
 	}
 }
 
@@ -162,32 +155,31 @@ static void BM_threaded_auth_encrypt_decrypt(benchmark::State& state) {
 
 		auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
 		state.SetIterationTime(elapsed_seconds.count());
-	}
 
-	if (state.thread_index == 0) {
-		bool all_finish = false;
-		while(!all_finish) {
-			for (const auto &b : mbag.if_finish) {
-				all_finish = true;
-				if(b == false) {
-					all_finish = false;
+		if (state.thread_index == 0) {
+			bool all_finish = false;
+			while(!all_finish) {
+				for (const auto &b : mbag.if_finish) {
+					all_finish = true;
+					if(b == false) {
+						all_finish = false;
+					}
 				}
+				std::this_thread::yield();
 			}
-			std::this_thread::yield();
-		}
-		std::vector<char> msg_concentrate;
-		msg_concentrate.reserve(mbag.msg.size());
-		for(auto &i : mbag.check_result) {
-			msg_concentrate.insert(msg_concentrate.end(), i.begin(), i.end());
-		}
+			std::vector<char> msg_concentrate;
+			msg_concentrate.reserve(mbag.msg.size());
+			for(auto &i : mbag.check_result) {
+				msg_concentrate.insert(msg_concentrate.end(), i.begin(), i.end());
+			}
 
-		// main check
-		if (mbag.msg != msg_concentrate) {
-			std::cout << "FAIL TO CORRECTLY DECRYPT ;/\n";
+			// main check
+			if (mbag.msg != msg_concentrate) {
+				std::cout << "FAIL TO CORRECTLY DECRYPT ;/\n";
+			}
+			mbag.clear_container();
 		}
-		mbag.clear_container();
 	}
-
 }
 
 #endif // MULTITHREAD_ENCRYPTION_HPP
