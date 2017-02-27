@@ -2,10 +2,13 @@ Benchamrk for simple sodium authentication, encryption, decryption.
 
 To test on other machines simple clone project:
 ```$ git clone https://github.com/hbdgr/sodium_bench```
+
 build (google benchmark is dependence. https://github.com/google/benchmark [should be installed on machine]):
 ```$ cmake . && make```
+
 and run script:
 ```$ ./result_analysis.sh --run-bench --analyze  --gen-plot-data```
+
 All data from benchmark should be placed in "data_files"  directory.
 Gnuplot charts will be placed in "output" directory.
 
@@ -28,6 +31,6 @@ OPTIONS:
 
 Gnuplot scripts are not generic and should be written (or copied) for all new functions.
 
-Example results, tested on (2 X 2500 MHz CPU s):
+Example results, tested on (2 X 2500 MHz CPU s)[AMD A4-4300M]:
 ![alt tag](https://raw.githubusercontent.com/hbdgr/sodium_bench/master/examples/Auth_Encypt.png)
 ![alt tag](https://raw.githubusercontent.com/hbdgr/sodium_bench/master/examples/Auth_Encypt_Decrypt.png)
