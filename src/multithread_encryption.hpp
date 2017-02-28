@@ -45,6 +45,9 @@ static void BM_threaded_auth_encrypt(benchmark::State& state) {
 		state.SkipWithError("To many threads for small data");
 	}
 
+	std::string msg = "Thread ["; msg += std::to_string(state.thread_index); msg += "] starts its job";
+	mbag.print_msg(msg);
+
 	start = std::chrono::high_resolution_clock::now();
 	while (state.KeepRunning()) {
 
@@ -54,6 +57,8 @@ static void BM_threaded_auth_encrypt(benchmark::State& state) {
 																   mbag.alice_keys.secret_key);
 		benchmark::ClobberMemory();
 	}
+	msg = "Thread ["; msg += std::to_string(state.thread_index); msg += "] finish its job";
+	mbag.print_msg(msg);
 	mbag.if_finish.at(state.thread_index) = true;
 	end = std::chrono::high_resolution_clock::now();
 	auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
@@ -89,6 +94,9 @@ static void BM_threaded_auth_encrypt_decrypt(benchmark::State& state) {
 		state.SkipWithError("To many threads for small data");
 	}
 
+	std::string msg = "Thread ["; msg += std::to_string(state.thread_index); msg += "] starts its job";
+	mbag.print_msg(msg);
+
 	start = std::chrono::high_resolution_clock::now();
 	while (state.KeepRunning()) {
 
@@ -103,6 +111,8 @@ static void BM_threaded_auth_encrypt_decrypt(benchmark::State& state) {
 																	 mbag.alice_keys.secret_key);
 		benchmark::ClobberMemory();
 	}
+	msg = "Thread ["; msg += std::to_string(state.thread_index); msg += "] finish its job";
+	mbag.print_msg(msg);
 	mbag.if_finish.at(state.thread_index) = true;
 	end = std::chrono::high_resolution_clock::now();
 	auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);

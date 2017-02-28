@@ -10,6 +10,7 @@ constexpr size_t Max_Threads = 64;
 struct static_container {
 	static std::mutex mtx;
 	static std::mutex mtx_clean;
+	static std::mutex mtx_print;
 	static std::array<std::atomic<bool>,Max_Threads> if_finish;
 
 	cryptobox_keypair alice_keys;
@@ -21,6 +22,11 @@ struct static_container {
 	std::vector<std::vector<char>> check_result;
 
 	std::array<char, crypto_box_NONCEBYTES> nonce;
+
+	static void print_msg(std::string &msg) {
+		std::lock_guard<std::mutex> lock(mtx_print);
+		std::cout << msg << '\n';
+	}
 
 	static static_container& get_m(size_t threads, size_t msg_length) {
 		std::lock_guard<std::mutex> lock(mtx);
@@ -61,6 +67,11 @@ private:
 		msg = generate_random_char_vector(msg_length);
 
 		splitted_msg = split_char_vector(msg, threads);
+
+		std::cout << "Msg [" << msg.size() << "] splitted to ";
+		for(auto &i : splitted_msg) {
+			std::cout << '[' << i.size() << ']';
+		} std::cout << '\n';
 		cipher.resize(threads);
 		check_result.resize(threads);
 	}
@@ -68,6 +79,7 @@ private:
 };
 std::mutex static_container::mtx;
 std::mutex static_container::mtx_clean;
+std::mutex static_container::mtx_print;
 std::array<std::atomic<bool>,Max_Threads> static_container::if_finish;
 std::unique_ptr<static_container> static_container::m_m(nullptr);
 
