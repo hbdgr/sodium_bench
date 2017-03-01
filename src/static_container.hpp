@@ -55,6 +55,11 @@ private:
 	void operator=(static_container const&) = delete;
 
 	static_container(size_t threads, size_t msg_length) {
+		if(threads > Max_Threads) {
+			throw std::invalid_argument(std::string("Set up too many threads. threads [" + std::to_string(threads)
+													+ "], Max threads [" + std::to_string(Max_Threads) + "]"));
+		}
+
 		for(size_t i = 0; i < Max_Threads; ++i) {
 			// not run threds if is not necessary
 			i < threads && i < msg_length  ? if_finish.at(i) = false
