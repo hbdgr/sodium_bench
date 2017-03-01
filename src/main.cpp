@@ -27,7 +27,7 @@
 //BENCHMARK(BM_crypto_box_auth_encryption)->RangeMultiplier(2)->Range(2, 8<<16);
 //BENCHMARK(BM_crypto_box_auth_encrypt_decrypt)->RangeMultiplier(2)->Range(2, 8<<16);
 
-constexpr size_t Min_inputArg = 48; // should be >= than thread num
+constexpr size_t Min_inputArg = 64; // should be >= than thread num
 constexpr size_t Max_inputArg = 8 << 18;
 
 //BENCHMARK(BM_crypto_single_onetimeAuth)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg);

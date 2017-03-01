@@ -17,9 +17,12 @@ set ylabel "speed rate [Mbps]"
 
 plot 'data_files/BM_threaded_auth_encrypt_decrypt-1-Mbps.data' with lines title "threads: 1" axes x1y1, \
 	'data_files/BM_threaded_auth_encrypt_decrypt-2-Mbps.data' with lines title "threads: 2" axes x1y1, \
-	'data_files/BM_threaded_auth_encrypt_decrypt-3-Mbps.data' with lines title "threads: 3" axes x1y1, \
 	'data_files/BM_threaded_auth_encrypt_decrypt-4-Mbps.data' with lines title "threads: 4" axes x1y1, \
 	'data_files/BM_threaded_auth_encrypt_decrypt-8-Mbps.data' with lines title "threads: 8" axes x1y1, \
+	'data_files/BM_threaded_auth_encrypt_decrypt-12-Mbps.data' with lines title "threads: 12" axes x1y1, \
+	'data_files/BM_threaded_auth_encrypt_decrypt-16-Mbps.data' with lines title "threads: 16" axes x1y1, \
+	'data_files/BM_threaded_auth_encrypt_decrypt-32-Mbps.data' with lines title "threads: 32" axes x1y1, \
+	'data_files/BM_threaded_auth_encrypt_decrypt-48-Mbps.data' with lines title "threads: 48" axes x1y1
 
 
 set title "Latency in nano seconds"
@@ -30,9 +33,12 @@ set logscale y 10
 
 plot 'data_files/BM_threaded_auth_encrypt_decrypt-1-latency.data' with lines title "threads: 1" axes x1y1, \
 	'data_files/BM_threaded_auth_encrypt_decrypt-2-latency.data' with lines title "threads: 2" axes x1y1, \
-	'data_files/BM_threaded_auth_encrypt_decrypt-3-latency.data' with lines title "threads: 3" axes x1y1, \
 	'data_files/BM_threaded_auth_encrypt_decrypt-4-latency.data' with lines title "threads: 4" axes x1y1, \
-	'data_files/BM_threaded_auth_encrypt_decrypt-8-latency.data' with lines title "threads: 8" axes x1y1
+	'data_files/BM_threaded_auth_encrypt_decrypt-8-latency.data' with lines title "threads: 8" axes x1y1, \
+	'data_files/BM_threaded_auth_encrypt_decrypt-12-latency.data' with lines title "threads: 12" axes x1y1, \
+	'data_files/BM_threaded_auth_encrypt_decrypt-16-latency.data' with lines title "threads: 16" axes x1y1, \
+	'data_files/BM_threaded_auth_encrypt_decrypt-32-latency.data' with lines title "threads: 32" axes x1y1, \
+	'data_files/BM_threaded_auth_encrypt_decrypt-48-latency.data' with lines title "threads: 48" axes x1y1
 
 
 set title "CPU time in nano seconds"
@@ -43,9 +49,12 @@ set ylabel "cpu time [ns]"
 
 plot 'data_files/BM_threaded_auth_encrypt_decrypt-1-cpu_time.data' with lines title "threads: 1" axes x1y1, \
 	'data_files/BM_threaded_auth_encrypt_decrypt-2-cpu_time.data' with lines title "threads: 2" axes x1y1, \
-	'data_files/BM_threaded_auth_encrypt_decrypt-3-cpu_time.data' with lines title "threads: 3" axes x1y1, \
 	'data_files/BM_threaded_auth_encrypt_decrypt-4-cpu_time.data' with lines title "threads: 4" axes x1y1, \
-	'data_files/BM_threaded_auth_encrypt_decrypt-8-cpu_time.data' with lines title "threads: 8" axes x1y1
+	'data_files/BM_threaded_auth_encrypt_decrypt-8-cpu_time.data' with lines title "threads: 8" axes x1y1, \
+	'data_files/BM_threaded_auth_encrypt_decrypt-12-cpu_time.data' with lines title "threads: 12" axes x1y1, \
+	'data_files/BM_threaded_auth_encrypt_decrypt-16-cpu_time.data' with lines title "threads: 16" axes x1y1, \
+	'data_files/BM_threaded_auth_encrypt_decrypt-32-cpu_time.data' with lines title "threads: 32" axes x1y1, \
+	'data_files/BM_threaded_auth_encrypt_decrypt-48-cpu_time.data' with lines title "threads: 48" axes x1y1
 
 #unset multiplot
 #unset output
