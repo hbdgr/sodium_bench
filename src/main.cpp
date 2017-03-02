@@ -1,6 +1,6 @@
 #include <iostream>
 
-
+#include <cmath>
 #include <benchmark/benchmark.h>
 #include "utils.hpp"
 #include "unit_tests.hpp"
@@ -10,6 +10,7 @@
 #include "encryption.hpp"
 #include "auth_encryption.hpp"
 #include "multithread_encryption.hpp"
+#include "multithread_ram_encryption.hpp"
 
 //BENCHMARK(bubble_sort)->RangeMultiplier(2)->Range(2, 8<<8)->Complexity();
 //BENCHMARK(std_sort)->RangeMultiplier(2)->Range(2, 8<<8)->Complexity();
@@ -27,31 +28,37 @@
 //BENCHMARK(BM_crypto_box_auth_encryption)->RangeMultiplier(2)->Range(2, 8<<16);
 //BENCHMARK(BM_crypto_box_auth_encrypt_decrypt)->RangeMultiplier(2)->Range(2, 8<<16);
 
-constexpr size_t Min_inputArg = 64; // should be >= than thread num
-constexpr size_t Max_inputArg = 8 << 18;
+
+static void CustomArguments(benchmark::internal::Benchmark* b) {
+  for (int i = 0; i <= 10; ++i)
+	  b->Args({i, 2 << i });
+}
+
+
+
+constexpr size_t Min_inputArg = 1024; // should be >= than thread num
+constexpr size_t Max_inputArg = 64 << 15;
 
 //BENCHMARK(BM_crypto_single_onetimeAuth)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg);
 //BENCHMARK(BM_crypto_single_onetimeAuth_and_verify)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg);
 
-BENCHMARK(BM_threaded_auth_encrypt)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)->Threads(1)->UseManualTime();
-BENCHMARK(BM_threaded_auth_encrypt)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)->Threads(2)->UseManualTime();
-BENCHMARK(BM_threaded_auth_encrypt)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)->Threads(4)->UseManualTime();
-BENCHMARK(BM_threaded_auth_encrypt)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)->Threads(6)->UseManualTime();
-BENCHMARK(BM_threaded_auth_encrypt)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)->Threads(8)->UseManualTime();
-BENCHMARK(BM_threaded_auth_encrypt)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)->Threads(12)->UseManualTime();
-BENCHMARK(BM_threaded_auth_encrypt)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)->Threads(16)->UseManualTime();
-BENCHMARK(BM_threaded_auth_encrypt)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)->Threads(32)->UseManualTime();
-BENCHMARK(BM_threaded_auth_encrypt)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)->Threads(48)->UseManualTime();
+// anthenticated encryption
+BENCHMARK(BM_threaded_auth_encrypt)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)
+		  ->Threads(1)->Threads(2)->Threads(4)->Threads(6)->Threads(8)
+		  ->Threads(12)->Threads(16)->Threads(32)->Threads(48)
+		  ->Threads(128)->Threads(512)->Threads(1024)
+		  ->UseManualTime();
 
-BENCHMARK(BM_threaded_auth_encrypt_decrypt)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)->Threads(1)->UseManualTime();
-BENCHMARK(BM_threaded_auth_encrypt_decrypt)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)->Threads(2)->UseManualTime();
-BENCHMARK(BM_threaded_auth_encrypt_decrypt)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)->Threads(4)->UseManualTime();
-BENCHMARK(BM_threaded_auth_encrypt_decrypt)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)->Threads(6)->UseManualTime();
-BENCHMARK(BM_threaded_auth_encrypt_decrypt)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)->Threads(8)->UseManualTime();
-BENCHMARK(BM_threaded_auth_encrypt_decrypt)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)->Threads(12)->UseManualTime();
-BENCHMARK(BM_threaded_auth_encrypt_decrypt)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)->Threads(16)->UseManualTime();
-BENCHMARK(BM_threaded_auth_encrypt_decrypt)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)->Threads(32)->UseManualTime();
-BENCHMARK(BM_threaded_auth_encrypt_decrypt)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)->Threads(48)->UseManualTime();
+// anthenticated encryption and decryption
+BENCHMARK(BM_threaded_auth_encrypt_decrypt) ->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)
+		  ->Threads(1)->Threads(2)->Threads(4)->Threads(6)->Threads(8)
+		  ->Threads(12)->Threads(16)->Threads(32)->Threads(48)
+		  ->Threads(128)->Threads(512)->Threads(1024)
+		  ->UseManualTime();
+
+
+
+//BENCHMARK(BM_threaded_encrypt_from_ram_64)->Arg(2);
 
 //BENCHMARK(run_unit_tests);
 

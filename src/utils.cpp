@@ -10,9 +10,9 @@ char generate_random_char() {
 
 	std::random_device rd;  //Will be used to obtain a seed for the random number engine
 	std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-	std::uniform_int_distribution<> dis(0, 20000);
+	std::uniform_int_distribution<> dis(0, max_index);
 
-	return Charset[dis(gen) % max_index];
+	return Charset[dis(gen)];
 }
 
 std::string generate_random_string(size_t length) {

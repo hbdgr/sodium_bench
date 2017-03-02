@@ -15,7 +15,7 @@ private:
 };
 std::mutex safe_printer::mtx_print;
 
-constexpr size_t Max_Threads = 64;
+constexpr size_t Max_Threads = 1024;
 struct static_container {
 	static std::array<std::atomic<bool>,Max_Threads> if_finish;
 

@@ -1,7 +1,7 @@
 set terminal pngcairo size 1200,1200 enhanced font 'Verdana,10'
 set output 'output/Auth_Encypt.png'
 
-set multiplot layout 3, 1 title "Threaded Authenticated Encryption" font ",16"
+set multiplot layout 4, 1 title "Threaded Authenticated Encryption" font ",16"
 
 set title "Speed in Mbps"
 set title  font ",12" norotate
@@ -15,6 +15,7 @@ set xtics (	'4B' 4,'8B' 8,'16B' 16,'32B' 32,'64B' 64,'128B' 128,'256B' 256,'512B
 
 set ylabel "speed rate [Mbps]"
 
+
 plot 'data_files/BM_threaded_auth_encrypt-1-Mbps.data' with lines title "threads: 1" axes x1y1, \
 	'data_files/BM_threaded_auth_encrypt-2-Mbps.data' with lines title "threads: 2" axes x1y1, \
 	'data_files/BM_threaded_auth_encrypt-4-Mbps.data' with lines title "threads: 4" axes x1y1, \
@@ -23,7 +24,6 @@ plot 'data_files/BM_threaded_auth_encrypt-1-Mbps.data' with lines title "threads
 	'data_files/BM_threaded_auth_encrypt-16-Mbps.data' with lines title "threads: 16" axes x1y1, \
 	'data_files/BM_threaded_auth_encrypt-32-Mbps.data' with lines title "threads: 32" axes x1y1, \
 	'data_files/BM_threaded_auth_encrypt-48-Mbps.data' with lines title "threads: 48" axes x1y1
-
 
 set title "Latency in nano seconds"
 set title  font ",12" norotate
