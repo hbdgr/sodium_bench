@@ -92,6 +92,9 @@ function gen_charts() {
 		done
 }
 
+function gen_gnuplot_files() {
+}
+
 function gen_data_Mbps_gunpfiles() {
 	printf "Start generating files in ${GNUPLOT_DATA_DIR}\n"
 
@@ -169,6 +172,7 @@ cmdline() {
 			set -o nounset
 			clean_gnuplot_data
 			gen_data_Mbps_gunpfiles
+			gen_gnuplot_files
 			gen_charts
 			;;
 		h)
