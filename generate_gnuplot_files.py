@@ -85,7 +85,7 @@ if __name__ == "__main__":
         write_gnuplot_header(gnuplot_file, fun_pretty_name, len(fun_param))
         write_gnuplot_xdata_axis(gnuplot_file)
 
-        for param in fun_param:
+        for param in sorted(fun_param):
             threads_array = get_available_threads(file_list, fun, param)
 
             if param == "Mbps":

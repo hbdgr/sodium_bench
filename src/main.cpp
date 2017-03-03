@@ -36,8 +36,8 @@ static void CustomArguments(benchmark::internal::Benchmark* b) {
 
 
 
-constexpr size_t Min_inputArg = 1024; // should be >= than thread num
-constexpr size_t Max_inputArg = 64 << 15;
+constexpr size_t Min_inputArg = 128; // should be >= than thread num
+constexpr size_t Max_inputArg = 64 << 16;
 
 //BENCHMARK(BM_crypto_single_onetimeAuth)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg);
 //BENCHMARK(BM_crypto_single_onetimeAuth_and_verify)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg);
@@ -46,14 +46,14 @@ constexpr size_t Max_inputArg = 64 << 15;
 BENCHMARK(BM_threaded_auth_encrypt)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)
 		  ->Threads(1)->Threads(2)->Threads(4)->Threads(6)->Threads(8)
 		  ->Threads(12)->Threads(16)->Threads(32)->Threads(48)
-		  ->Threads(128)->Threads(512)->Threads(1024)
+		  ->Threads(128)
 		  ->UseManualTime();
 
 // anthenticated encryption and decryption
-BENCHMARK(BM_threaded_auth_encrypt_decrypt) ->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)
+BENCHMARK(BM_threaded_auth_encrypt_decrypt)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)
 		  ->Threads(1)->Threads(2)->Threads(4)->Threads(6)->Threads(8)
 		  ->Threads(12)->Threads(16)->Threads(32)->Threads(48)
-		  ->Threads(128)->Threads(512)->Threads(1024)
+		  ->Threads(128)
 		  ->UseManualTime();
 
 
