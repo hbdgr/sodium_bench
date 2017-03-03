@@ -93,6 +93,8 @@ function gen_charts() {
 }
 
 function gen_gnuplot_files() {
+	#python implementation
+	./generate_gnuplot_files.py
 }
 
 function gen_data_Mbps_gunpfiles() {
@@ -129,7 +131,8 @@ cat <<- EOF
 	OPTIONS:
 	    -r --run-bench           run ${PROGNAME} binary with google benchmarks and save results to ${FILENAME}
 	    -a --analyze             analyze  benchmark results from ${PROGNAME}
-	    -g --gen-plot-data       generate data to plot in ./data_files dir
+	    -g --gen-plot-data       generate data to ./${GNUPLOT_DATA_DIR} and plot charts using gnuplot to ./${OUTPUT}
+
 	    -h --help                show this help
 EOF
 }
