@@ -35,15 +35,28 @@ struct data_container {
 			splitted_msg.clear();
 			cipher.clear();
 			check_result.clear();
+			m_data_filled = false;
 
 			m_m.reset(nullptr);
 		}
 	}
 	std::string get_base_msg() {
-		return char_vector_tostring(concentrate_vector(splitted_msg),false);
+		return char_vector_tostring(thread_safe::concentrate_vector(splitted_msg),false);
 	}
 	std::string get_result_msg() {
-		return char_vector_tostring(concentrate_vector(check_result),false);
+		return char_vector_tostring(thread_safe::concentrate_vector(check_result),false);
+	}
+	void setup_data(data_type dat) {
+		std::lock_guard<std::mutex> lock(mtx_fill_data);
+		if(!m_data_filled) {
+			switch(dat) {
+				case data_type::generate  : fill_data_generate(); break;
+				case data_type::variant   : fill_data_variant();  break;
+				default:
+					std::cerr << "data container: data_type not known\n";
+			}
+			m_data_filled = true;
+		}
 	}
 
 private:
@@ -68,13 +81,6 @@ private:
 		bob_keys = generate_kyepair();
 		nonce = generate_random_char_array<crypto_box_NONCEBYTES>();
 
-		switch(dat) {
-			case data_type::generate  : fill_data_generate(); break;
-			case data_type::variant   : fill_data_variant();  break;
-			default:
-				std::cerr << "data container: data_type not known\n";
-		}
-
 		cipher.resize(threads);
 		check_result.resize(threads);
 	}
@@ -88,20 +94,24 @@ private:
 
 		chunk_visitor cv(threads_num);
 		splitted_msg = boost::apply_visitor(cv, variant_arr);
-		msg = concentrate_vector(splitted_msg);
+		msg = thread_safe::concentrate_vector(splitted_msg);
 	}
 
 	size_t base_msg_len;
 	size_t threads_num;
+	static std::atomic<bool> m_data_filled;
 	static std::unique_ptr<data_container> m_m;
 
 	static std::mutex mtx;
 	static std::mutex mtx_clean;
+	static std::mutex mtx_fill_data;
 
 };
 std::mutex data_container::mtx;
 std::mutex data_container::mtx_clean;
+std::mutex data_container::mtx_fill_data;
 std::array<std::atomic<bool>,Max_Threads> data_container::if_finish;
+std::atomic<bool> data_container::m_data_filled(false);
 std::unique_ptr<data_container> data_container::m_m(nullptr);
 
 #endif // DATA_CONTAINER_HPP
