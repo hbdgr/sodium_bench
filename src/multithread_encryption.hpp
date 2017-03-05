@@ -48,6 +48,7 @@ static void BM_threaded_auth_encrypt(benchmark::State& state) {
 	start = std::chrono::high_resolution_clock::now();
 	while (state.KeepRunning()) {
 
+		mbag.setup_data(data_type::generate);
 		mbag.cipher.at(state.thread_index) = cryptobox_encrypt(mbag.splitted_msg.at(state.thread_index),
 																   mbag.nonce,
 																   mbag.bob_keys.public_key,
@@ -57,7 +58,8 @@ static void BM_threaded_auth_encrypt(benchmark::State& state) {
 	mbag.if_finish.at(state.thread_index) = true;
 	end = std::chrono::high_resolution_clock::now();
 	auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
-	state.SetIterationTime(elapsed_seconds.count());
+	auto all_time_cost = elapsed_seconds + thread_cost*state.threads*state.iterations();
+	state.SetIterationTime(all_time_cost.count());
 
 	if (state.thread_index == 0) {
 
@@ -92,6 +94,7 @@ static void BM_threaded_auth_encrypt_decrypt(benchmark::State& state) {
 	start = std::chrono::high_resolution_clock::now();
 	while (state.KeepRunning()) {
 
+		mbag.setup_data(data_type::generate);
 		mbag.cipher.at(state.thread_index) = cryptobox_encrypt(mbag.splitted_msg.at(state.thread_index),
 															   mbag.nonce,
 															   mbag.bob_keys.public_key,
@@ -106,7 +109,8 @@ static void BM_threaded_auth_encrypt_decrypt(benchmark::State& state) {
 	mbag.if_finish.at(state.thread_index) = true;
 	end = std::chrono::high_resolution_clock::now();
 	auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
-	state.SetIterationTime(elapsed_seconds.count());
+	auto all_time_cost = elapsed_seconds + thread_cost*state.threads*state.iterations();
+	state.SetIterationTime(all_time_cost.count());
 
 	if (state.thread_index == 0) {
 		bool all_finish = false;

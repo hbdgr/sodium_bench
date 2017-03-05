@@ -2,6 +2,7 @@
 #include "utils.hpp"
 #include <fenv.h>
 
+
 char generate_random_char() {
 	static const char Charset[] = "0123456789"
 								  "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -80,7 +81,8 @@ void safe_printer::print_msg(std::__cxx11::string &msg) {
 }
 std::mutex safe_printer::mtx_print;
 
-std::vector<char> concentrate_vector(std::vector<std::vector<char> > &v, size_t to_reserve) {
+std::vector<char> thread_safe::concentrate_vector(std::vector<std::vector<char> > &v, size_t to_reserve) {
+	std::lock_guard<std::mutex> lock(mtx_concentrate);
 	std::vector<char> msg_concentrate;
 	msg_concentrate.reserve(to_reserve);
 	for(auto &i : v) {
@@ -88,3 +90,4 @@ std::vector<char> concentrate_vector(std::vector<std::vector<char> > &v, size_t 
 	}
 	return msg_concentrate;
 }
+std::mutex thread_safe::mtx_concentrate;
