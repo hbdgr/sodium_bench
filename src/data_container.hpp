@@ -1,0 +1,4 @@
+#ifndef DATA_CONTAINER_HPP
+#define DATA_CONTAINER_HPP
+
+#endif // DATA_CONTAINER_HPP
