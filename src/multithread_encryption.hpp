@@ -5,7 +5,7 @@
 #include <thread>
 #include "utils.hpp"
 #include "auth_encryption.hpp"
-#include "static_container.hpp"
+#include "data_container.hpp"
 
 
 //static void BM_threaded_onetimeAuth(benchmark::State& state) {
@@ -34,7 +34,7 @@
 
 static void BM_threaded_auth_encrypt(benchmark::State& state) {
 
-	static_container &mbag = static_container::get_m(state.threads, state.range(0));
+	data_container &mbag = data_container::get_m(state.threads, state.range(0));
 	std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
 	if (state.thread_index == 0) {
 		// Setup code here.
@@ -78,7 +78,7 @@ static void BM_threaded_auth_encrypt(benchmark::State& state) {
 
 static void BM_threaded_auth_encrypt_decrypt(benchmark::State& state) {
 
-	static_container &mbag = static_container::get_m(state.threads, state.range(0));
+	data_container &mbag = data_container::get_m(state.threads, state.range(0));
 	std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
 	if (state.thread_index == 0) {
 		// Setup code here.

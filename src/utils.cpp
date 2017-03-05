@@ -73,3 +73,18 @@ std::string print_splitted_char_vector(const std::vector<std::vector<char> > &ve
 	if (new_line) ss << std::endl;
 	return ss.str();
 }
+
+void safe_printer::print_msg(std::__cxx11::string &msg) {
+	std::lock_guard<std::mutex> lock(mtx_print);
+	std::cout << msg << '\n';
+}
+std::mutex safe_printer::mtx_print;
+
+std::vector<char> concentrate_vector(std::vector<std::vector<char> > &v, size_t to_reserve) {
+	std::vector<char> msg_concentrate;
+	msg_concentrate.reserve(to_reserve);
+	for(auto &i : v) {
+		msg_concentrate.insert(msg_concentrate.end(), i.begin(), i.end());
+	}
+	return msg_concentrate;
+}

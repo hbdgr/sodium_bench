@@ -1,52 +1,65 @@
 #ifndef MULTITHREAD_RAM_ENCRYPTION_HPP
 #define MULTITHREAD_RAM_ENCRYPTION_HPP
 
-#include <map>
 
+#include "auth_encryption.hpp"
 #include "global_buffers.hpp"
 #include "utils.hpp"
+#include "data_container.hpp"
 
 
-/*
-std::map<size_t, size_t> gen_args_map(const size_t args) {
-	std::map<size_t, size_t> loc_map;
-	for(size_t i =0; i < args; ++i) {
-		loc_map.emplace_hint(loc_map.end(), std::make_pair(i, static_cast<size_t>(2<<i) ));
+static void BM_staticData_encrypt_decrypt(benchmark::State& state) {
+
+	data_container &r_all = data_container::get_m(state.threads, state.range(0), data_type::variant);
+	std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
+	if (state.thread_index == 0) {
+		// Setup code here.
 	}
-	return loc_map;
-}
-*/
 
-//std::map<size_t, size_t> args_map = gen_args_map(args);
-auto global_buffers = makeBuffers<64,128,256,512,1024>();
-constexpr size_t arg_num = std::tuple_size<decltype(global_buffers)>::value;
-constexpr std::array<std::pair<size_t, size_t>,arg_num> args_array;
-
-
-static void BM_threaded_encrypt_from_ram_64(benchmark::State& state) {
-
-	constexpr size_t msg_size = 64;
-	auto &arr = std::get<0>(global_buffers);
-
-	std::cout << "MSG: ";
-	for (auto &ele : arr) {
-		std::cout << ele;
-	} std::cout << '\n';
-	auto splitted_msg = split_char_array<msg_size>(arr, 2);
-	for (auto &seg : splitted_msg) {
-		std::cout << "[";
-		for (size_t i = 0; i < std::get<1>(seg); ++i) {
-			std::cout << *(std::get<0>(seg)+i);
-		}
-		std::cout << "]";
+	// do nothing if thread is not necessary
+	if (r_all.if_finish.at(state.thread_index) == true) {
+		state.SkipWithError("To many threads for small data");
 	}
-	std::cout << '\n';
 
+	start = std::chrono::high_resolution_clock::now();
 	while (state.KeepRunning()) {
 
+		r_all.cipher.at(state.thread_index) = cryptobox_encrypt(r_all.splitted_msg.at(state.thread_index),
+															   r_all.nonce,
+															   r_all.bob_keys.public_key,
+															   r_all.alice_keys.secret_key);
 
+		r_all.check_result.at(state.thread_index) = cryptobox_decrypt(r_all.cipher.at(state.thread_index),
+																	 r_all.nonce,
+																	 r_all.bob_keys.public_key,
+																	 r_all.alice_keys.secret_key);
+		benchmark::ClobberMemory();
 	}
+	r_all.if_finish.at(state.thread_index) = true;
+	end = std::chrono::high_resolution_clock::now();
+	auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
+	state.SetIterationTime(elapsed_seconds.count());
 
+	if (state.thread_index == 0) {
+		bool all_finish = false;
+		while(!all_finish) {
+			for (const auto &b : r_all.if_finish) {
+				all_finish = true;
+				if(b == false) {
+					all_finish = false;
+				}
+			}
+			std::this_thread::yield();
+		}
+
+		// main check
+		if (r_all.get_base_msg() != r_all.get_result_msg()) {
+			std::cout << "FAIL TO CORRECTLY DECRYPT ;/\n";
+			std::cout << "L:" << r_all.get_base_msg() << '\n';
+			std::cout << "R:" << r_all.get_result_msg() << '\n';
+		}
+		r_all.clear_container();
+	}
 }
 
 #endif // MULTITHREAD_RAM_ENCRYPTION_HPP

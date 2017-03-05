@@ -6,6 +6,7 @@
 #include <sstream>
 #include <cassert>
 #include <iostream>
+#include <mutex>
 
 char generate_random_char();
 std::string generate_random_string (size_t length);
@@ -83,8 +84,15 @@ std::vector<std::tuple<const char *, size_t>> chunk_char_array(std::array<char, 
 }
 
 std::vector<std::vector<char>> split_char_vector(std::vector<char> &vec, size_t parts_num);
+std::vector<char> concentrate_vector(std::vector<std::vector<char>> &v, size_t to_reserve=256);
 std::string char_vector_tostring(const std::vector<char> &vec, bool new_line=true);
 std::string print_splitted_char_vector(const std::vector<std::vector<char>> &vec, bool new_line=true);
+
+struct safe_printer {
+	static void print_msg(std::string &msg);
+private:
+	static std::mutex mtx_print;
+};
 
 
 #endif // UTILS_HPP

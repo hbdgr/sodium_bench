@@ -38,24 +38,6 @@ std::vector<char> cryptobox_encrypt(std::vector<char> &msg,
 	return cipher;
 }
 
-void cryptobox_encrypt_thr(std::vector<char> &results,
-						   std::vector<char> &msg,
-						   std::array<char, crypto_box_NONCEBYTES> &nonce,
-						   std::array<unsigned char, crypto_box_PUBLICKEYBYTES> &public_key,
-						   std::array<unsigned char, crypto_box_SECRETKEYBYTES> &secret_key) {
-
-	results.resize(msg.size()+crypto_box_MACBYTES);
-
-	if (crypto_box_easy(reinterpret_cast<unsigned char *>(results.data()),
-						reinterpret_cast<unsigned char *>(msg.data()),
-						msg.size(),
-						reinterpret_cast<unsigned char *>(nonce.data()),
-						public_key.data(),
-						secret_key.data()) != 0) {
-		throw std::runtime_error{"Fail to auth encrypt msg"};
-	}
-}
-
 std::vector<char> cryptobox_decrypt (std::vector<char> &cipher,
 									std::array<char, crypto_box_NONCEBYTES> &nonce,
 									std::array<unsigned char, crypto_box_PUBLICKEYBYTES> &public_key,
