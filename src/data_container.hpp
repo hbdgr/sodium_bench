@@ -2,6 +2,7 @@
 #define DATA_CONTAINER_HPP
 
 #include "global_buffer_variant.hpp"
+#include "auth_encryption.hpp"
 
 enum class data_type { generate, variant };
 
@@ -17,7 +18,7 @@ struct data_container {
 	std::vector<std::vector<char>> cipher;
 	std::vector<std::vector<char>> check_result;
 
-	std::array<char, crypto_box_NONCEBYTES> nonce;
+	std::array<unsigned char, crypto_box_NONCEBYTES> nonce;
 
 	static data_container& get_m(size_t threads, size_t msg_length, data_type dat = data_type::generate) {
 		std::lock_guard<std::mutex> lock(mtx);
@@ -79,7 +80,7 @@ private:
 
 		alice_keys = generate_kyepair();
 		bob_keys = generate_kyepair();
-		nonce = generate_random_char_array<crypto_box_NONCEBYTES>();
+		nonce = generate_random_array<unsigned char, crypto_box_NONCEBYTES>();
 
 		cipher.resize(threads);
 		check_result.resize(threads);

@@ -14,9 +14,9 @@ char generate_random_char();
 std::string generate_random_string (size_t length);
 std::vector<char> generate_random_char_vector (size_t length);
 
-template<std::size_t SIZE>
-std::array<char, SIZE> generate_random_char_array () {
-	std::array<char, SIZE> ar;
+template<typename T,std::size_t SIZE>
+std::array<T, SIZE> generate_random_array () {
+	std::array<T, SIZE> ar;
 	std::generate_n(ar.begin(), SIZE, generate_random_char);
 	return ar;
 }

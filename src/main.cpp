@@ -37,7 +37,7 @@ static void CustomArguments(benchmark::internal::Benchmark* b) {
 
 
 constexpr size_t Min_inputArg = 128; // should be >= than thread num
-//constexpr size_t Max_inputArg = 2<<4;
+//constexpr size_t Max_inputArg = 2<<6;
 constexpr size_t Max_inputArg = 1048576;
 
 //BENCHMARK(BM_crypto_single_onetimeAuth)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg);

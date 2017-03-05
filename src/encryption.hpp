@@ -17,24 +17,25 @@
 
 #include <sodium.h>
 #include "utils.hpp"
+#include "data_container.hpp"
 
 
 std::vector<char> xsalaxa_crypto_stream(const size_t clen,
-										std::array<char, crypto_stream_NONCEBYTES> &nonce,
-										std::array<char, crypto_stream_KEYBYTES> &key) {
+										std::array<unsigned char, crypto_stream_NONCEBYTES> &nonce,
+										std::array<unsigned char, crypto_stream_KEYBYTES> &key) {
 
 	std::vector<char> c(clen);
 	crypto_stream(reinterpret_cast<unsigned char *>(c.data()),
 				  clen,
-				  reinterpret_cast<unsigned char *>(nonce.data()),
-				  reinterpret_cast<unsigned char *>(key.data()));
+				  nonce.data(),
+				  key.data());
 
 	return c;
 }
 
 std::vector<char> xsalsa_crypto_stream_xor(std::vector<char> &msg,
-										   std::array<char, crypto_stream_NONCEBYTES> &nonce,
-										   std::array<char, crypto_stream_KEYBYTES> &key) {
+										   std::array<unsigned char, crypto_stream_NONCEBYTES> &nonce,
+										   std::array<unsigned char, crypto_stream_KEYBYTES> &key) {
 
 	size_t msg_len = msg.size();
 	std::vector<char> c(msg_len);
@@ -42,8 +43,8 @@ std::vector<char> xsalsa_crypto_stream_xor(std::vector<char> &msg,
 	crypto_stream_xor(reinterpret_cast<unsigned char *>(c.data()),
 					  reinterpret_cast<unsigned char *>(msg.data()),
 					  msg_len,
-					  reinterpret_cast<unsigned char *>(nonce.data()),
-					  reinterpret_cast<unsigned char *>(key.data()));
+					  nonce.data(),
+					  key.data());
 
 	return c;
 }
@@ -57,11 +58,11 @@ static void BM_simple_XSalsa20_encryption(benchmark::State& state) {
 	std::vector<char> msg(generate_random_char_vector(msg_length));
 	std::vector<char> cipher(msg_length);
 
-	std::array<char, crypto_stream_xsalsa20_NONCEBYTES> nonce;
-	std::array<char, crypto_stream_KEYBYTES> key (generate_random_char_array<crypto_stream_KEYBYTES>());
+	std::array<unsigned char, crypto_stream_xsalsa20_NONCEBYTES> nonce;
+	std::array<unsigned char, crypto_stream_KEYBYTES> key (generate_random_array<unsigned char,crypto_stream_KEYBYTES>());
 
 	while (state.KeepRunning()) {
-		nonce = generate_random_char_array<crypto_stream_xsalsa20_NONCEBYTES>();
+		nonce = generate_random_array<unsigned char,crypto_stream_xsalsa20_NONCEBYTES>();
 		cipher = xsalsa_crypto_stream_xor(msg, nonce, key);
 	}
 }
@@ -75,11 +76,11 @@ static void BM_simple_XSalsa20_encryption_and_decryption(benchmark::State& state
 	std::vector<char> msg(generate_random_char_vector(msg_length));
 	std::vector<char> cipher(msg_length);
 
-	std::array<char, crypto_stream_xsalsa20_NONCEBYTES> nonce;
-	std::array<char, crypto_stream_KEYBYTES> key (generate_random_char_array<crypto_stream_KEYBYTES>());
+	std::array<unsigned char, crypto_stream_xsalsa20_NONCEBYTES> nonce;
+	std::array<unsigned char, crypto_stream_KEYBYTES> key (generate_random_array<unsigned char, crypto_stream_KEYBYTES>());
 
 	while (state.KeepRunning()) {
-		nonce = generate_random_char_array<crypto_stream_xsalsa20_NONCEBYTES>();
+		nonce = generate_random_array<unsigned char,crypto_stream_xsalsa20_NONCEBYTES>();
 		cipher = xsalsa_crypto_stream_xor(msg, nonce, key);
 		std::vector<char> check = xsalsa_crypto_stream_xor(cipher, nonce, key);
 		assert(msg == check && "fail to decrypt cipher");
@@ -115,7 +116,7 @@ static void BM_multithread_xsalsa_sym_encrypt(benchmark::State& state) {
 	mbag.if_finish.at(state.thread_index) = true;
 	end = std::chrono::high_resolution_clock::now();
 	auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
-	auto all_time_cost = elapsed_seconds + thread_cost*state.threads*state.iterations();
+	auto all_time_cost = elapsed_seconds + thread_cost*state.threads*state.threads*state.iterations();
 	state.SetIterationTime(all_time_cost.count());
 
 	if (state.thread_index == 0) {
