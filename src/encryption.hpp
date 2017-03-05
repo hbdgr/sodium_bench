@@ -86,4 +86,58 @@ static void BM_simple_XSalsa20_encryption_and_decryption(benchmark::State& state
 	}
 }
 
+static void BM_multithread_xsalsa_sym_encrypt(benchmark::State& state) {
+
+	data_container &mbag = data_container::get_m(state.threads, state.range(0), data_type::variant);
+	std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
+	if (state.thread_index == 0) {
+		// Setup code here.
+	}
+
+	// do nothing if thread is not necessary
+	if (mbag.if_finish.at(state.thread_index) == true) {
+		state.SkipWithError("To many threads for small data");
+	}
+
+	start = std::chrono::high_resolution_clock::now();
+	while (state.KeepRunning()) {
+
+		mbag.setup_data(data_type::variant);
+		mbag.cipher.at(state.thread_index) = xsalsa_crypto_stream_xor(mbag.splitted_msg.at(state.thread_index),
+																	  mbag.nonce,
+																	  mbag.alice_keys.secret_key);
+
+		mbag.check_result.at(state.thread_index) = xsalsa_crypto_stream_xor(mbag.cipher.at(state.thread_index),
+																	  mbag.nonce,
+																	  mbag.alice_keys.secret_key);
+		benchmark::ClobberMemory();
+	}
+	mbag.if_finish.at(state.thread_index) = true;
+	end = std::chrono::high_resolution_clock::now();
+	auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
+	auto all_time_cost = elapsed_seconds + thread_cost*state.threads*state.iterations();
+	state.SetIterationTime(all_time_cost.count());
+
+	if (state.thread_index == 0) {
+		bool all_finish = false;
+		while(!all_finish) {
+			for (const auto &b : mbag.if_finish) {
+				all_finish = true;
+				if(b == false) {
+					all_finish = false;
+				}
+			}
+			std::this_thread::yield();
+		}
+
+		// main check
+		if (mbag.get_base_msg() != mbag.get_result_msg()) {
+			std::cout << "FAIL TO CORRECTLY DECRYPT ;/\n";
+			std::cout << "L:" << mbag.get_base_msg() << '\n';
+			std::cout << "R:" << mbag.get_result_msg() << '\n';
+		}
+		mbag.clear_container();
+	}
+}
+
 #endif // ENCRYPTION_HPP
