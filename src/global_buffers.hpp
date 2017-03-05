@@ -2,6 +2,7 @@
 #define GLOBAL_BUFFERS_HPP
 
 #include "threaded_utils.hpp"
+#include <boost/variant.hpp>
 
 template <size_t... args>
 using buffers = std::tuple<typename std::array<char, args>...>;
@@ -40,6 +41,11 @@ struct Func {
 	}
 };
 
+// example of use:
+// auto t = makeBuffersr<1, 2, 3, 500>();
+// auto& arr1 = std::get<3>(t);
+// for (char ch: arr1) {
+// std::cout << static_cast<int>(ch) << std::endl;
 template <size_t... args> buffers<args...> makeBuffers() {
 	buffers<args...> result;
 
@@ -49,10 +55,21 @@ template <size_t... args> buffers<args...> makeBuffers() {
 	return result;
 }
 
-	// auto t = makeBuffersr<1, 2, 3, 500>();
-	// auto& arr1 = std::get<3>(t);
-	// for (char ch: arr1) {
-	// std::cout << static_cast<int>(ch) << std::endl;
+// inspiration from:
+// http://stackoverflow.com/questions/8194227/how-to-get-the-i-th-element-from-an-stdtuple-when-i-isnt-know-at-compile-time
+template <size_t n, typename... T>
+boost::variant<T...> dynamic_get_impl(size_t i, const std::tuple<T...>& tpl) {
+	if (i == n)
+		return std::get<n>(tpl);
+	else if (n == sizeof...(T) - 1)
+		throw std::out_of_range("Tuple element out of range.");
+	else
+	return dynamic_get_impl<(n < sizeof...(T)-1 ? n+1 : 0)>(i, tpl);
+}
 
+template <typename... T>
+boost::variant<T...> dynamic_get(size_t i, const std::tuple<T...>& tpl) {
+	return dynamic_get_impl<0>(i, tpl);
+}
 
 #endif // GLOBAL_BUFFERS_HPP
