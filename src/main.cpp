@@ -73,6 +73,11 @@ BENCHMARK(BM_multithread_xsalsa_sym_encrypt)->RangeMultiplier(2)->Range(Min_inpu
 		  ->Threads(12)->Threads(16)->Threads(32)->Threads(48)
 		  ->UseManualTime();
 
+BENCHMARK(BM_multithread_xsalsa_sym_encrypt_nothreadcost)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)
+		  ->Threads(1)->Threads(2)->Threads(4)->Threads(8)
+		  ->Threads(12)->Threads(16)->Threads(32)->Threads(48)
+		  ->UseManualTime();
+
 //BENCHMARK(BM_threaded_auth_encrypt)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)
 //		  ->Threads(1)->Threads(2)->Threads(4)->Threads(8)
 //		  ->Threads(12)->Threads(16)->Threads(32)->Threads(48)
