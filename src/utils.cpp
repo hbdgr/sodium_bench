@@ -75,7 +75,7 @@ std::string print_splitted_char_vector(const std::vector<std::vector<char> > &ve
 	return ss.str();
 }
 
-void safe_printer::print_msg(std::__cxx11::string &msg) {
+void safe_printer::print_msg(std::string &msg) {
 	std::lock_guard<std::mutex> lock(mtx_print);
 	std::cout << msg << '\n';
 }

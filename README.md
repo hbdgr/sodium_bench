@@ -4,10 +4,13 @@ To test on other machines simple clone project:
 ```$ git clone https://github.com/hbdgr/sodium_bench```
 
 build (google benchmark is dependence. https://github.com/google/benchmark [should be installed on machine]):
-```$ cmake . && make```
+```$ cmake  -DCMAKE_BUILD_TYPE=Release -DBENCHMARK_ENABLE_LTO=true && make```
 
 and run script:
 ```$ ./result_analysis.sh --run-bench --analyze  --gen-plot-data```
+
+to only console benchmaks (without anlysis and gnuplot charts)
+```$ ./sodium_bench```
 
 All data from benchmark should be placed in "data_files"  directory.
 Gnuplot charts will be placed in "output" directory.
