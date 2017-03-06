@@ -20,6 +20,10 @@ struct data_container {
 
 	std::array<unsigned char, crypto_box_NONCEBYTES> nonce;
 
+	// one-time authentication poly1305 data
+	std::vector<std::array<unsigned char,crypto_onetimeauth_BYTES>> onetime_auth_out;
+	std::array<unsigned char,crypto_onetimeauth_KEYBYTES> onetime_auth_key;
+
 	static data_container& get_m(size_t threads, size_t msg_length, data_type dat = data_type::generate) {
 		std::lock_guard<std::mutex> lock(mtx);
 		if(m_m == nullptr) {
@@ -84,6 +88,11 @@ private:
 
 		cipher.resize(threads);
 		check_result.resize(threads);
+
+		// refactor proposal
+		// It would be better be split different usages for example to child classes.
+		onetime_auth_key = generate_random_array<unsigned char,crypto_onetimeauth_KEYBYTES>();
+		onetime_auth_out.resize(threads);
 	}
 	void fill_data_generate () {
 		msg = generate_random_char_vector(base_msg_len);

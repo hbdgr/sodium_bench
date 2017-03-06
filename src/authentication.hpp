@@ -4,6 +4,28 @@
 #endif // AUTHENTICATION_HPP
 
 #include <sodium.h>
+#include "global_buffer_variant.hpp"
+#include "data_container.hpp"
+
+std::array<unsigned char,crypto_onetimeauth_BYTES> poly1305_onetime_auth(std::vector<char> msg,
+																		 std::array<unsigned char,crypto_onetimeauth_KEYBYTES> key){
+
+	std::array<unsigned char,crypto_onetimeauth_BYTES> out;
+	crypto_onetimeauth(out.data(),
+					   reinterpret_cast<unsigned char *>(msg.data()),
+					   msg.size(),
+					   key.data());
+	return out;
+}
+int poly1305_onetime_auth_verify(std::array<unsigned char,crypto_onetimeauth_BYTES> out,
+								 std::vector<char> msg,
+								 std::array<unsigned char,crypto_onetimeauth_KEYBYTES> key) {
+
+	return crypto_onetimeauth_verify(out.data(),
+									 reinterpret_cast<unsigned char *>(msg.data()),
+									 msg.size(),
+									 key.data());
+}
 
 static void BM_crypto_manybuf_split(benchmark::State& state) {
 	if (sodium_init() == -1) {
@@ -91,5 +113,64 @@ static void BM_crypto_single_onetimeAuth_and_verify(benchmark::State& state) {
 		}
 		//state.SetBytesProcessed(state.bytes_processed()); // it seems to now work propertly, don't know why this function
 												   //includes amount of iteration in his calculation
+	}
+}
+
+static void BM_poly1305_authentication(benchmark::State& state) {
+
+	data_container &mbag = data_container::get_m(state.threads, state.range(0), data_type::variant);
+	std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
+	if (state.thread_index == 0) {
+		// Setup code here.
+	}
+
+	// do nothing if thread is not necessary
+	if (mbag.if_finish.at(state.thread_index) == true) {
+		state.SkipWithError("To many threads for small data");
+	}
+
+	start = std::chrono::high_resolution_clock::now();
+	while (state.KeepRunning()) {
+
+		mbag.setup_data(data_type::variant);
+
+		mbag.onetime_auth_out.at(state.thread_index) = poly1305_onetime_auth(mbag.splitted_msg.at(state.thread_index),
+																mbag.onetime_auth_key);
+		if (poly1305_onetime_auth_verify(mbag.onetime_auth_out.at(state.thread_index),
+										 mbag.splitted_msg.at(state.thread_index),
+										 mbag.onetime_auth_key) != 0) {
+			state.SkipWithError("Fail to verify poly1305_authenticated data!");
+		}
+
+		mbag.cipher.at(state.thread_index) = cryptobox_encrypt(mbag.splitted_msg.at(state.thread_index),
+															   mbag.nonce,
+															   mbag.bob_keys.public_key,
+															   mbag.alice_keys.secret_key);
+
+		mbag.check_result.at(state.thread_index) = cryptobox_decrypt(mbag.cipher.at(state.thread_index),
+																	 mbag.nonce,
+																	 mbag.bob_keys.public_key,
+																	 mbag.alice_keys.secret_key);
+		benchmark::ClobberMemory();
+	}
+	mbag.if_finish.at(state.thread_index) = true;
+	end = std::chrono::high_resolution_clock::now();
+	auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
+	// state.threads twice because SetIterationTime seems to divide be one. Same with state.iterations()
+	auto all_time_cost = elapsed_seconds + thread_cost*state.threads*(state.threads-1)*state.iterations();
+	state.SetIterationTime(all_time_cost.count());
+
+	if (state.thread_index == 0) {
+		bool all_finish = false;
+		while(!all_finish) {
+			for (const auto &b : mbag.if_finish) {
+				all_finish = true;
+				if(b == false) {
+					all_finish = false;
+				}
+			}
+			std::this_thread::yield();
+		}
+		mbag.clear_container();
 	}
 }
