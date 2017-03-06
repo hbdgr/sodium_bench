@@ -9,8 +9,8 @@
 #include <map>
 #include "global_buffers.hpp"
 
-constexpr size_t max_buffer = 4194304;
-auto global_buffers = makeBuffers<2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144,524288,1048576,2097152,4194304>();
+constexpr size_t max_buffer = 2097152;
+auto global_buffers = makeBuffers<2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144,524288,1048576,2097152>();
 constexpr size_t args_num = std::tuple_size<decltype(global_buffers)>::value;
 
 
