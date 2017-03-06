@@ -1,11 +1,16 @@
 #ifndef GLOBAL_BUFFER_VARIANT_HPP
 #define GLOBAL_BUFFER_VARIANT_HPP
 
+// increase boost_mpl limit from default 20
+#define BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
+#define BOOST_MPL_LIMIT_LIST_SIZE 40
+#define BOOST_MPL_LIMIT_VECTOR_SIZE 40
+
 #include <map>
 #include "global_buffers.hpp"
 
-constexpr size_t max_buffer = 1048576;
-auto global_buffers = makeBuffers<2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144,524288,1048576>();
+constexpr size_t max_buffer = 4194304;
+auto global_buffers = makeBuffers<2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144,524288,1048576,2097152,4194304>();
 constexpr size_t args_num = std::tuple_size<decltype(global_buffers)>::value;
 
 

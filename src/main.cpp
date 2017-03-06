@@ -38,7 +38,7 @@ static void CustomArguments(benchmark::internal::Benchmark* b) {
 
 constexpr size_t Min_inputArg = 128; // should be >= than thread num
 //constexpr size_t Max_inputArg = 2<<6;
-constexpr size_t Max_inputArg = 1048576;
+constexpr size_t Max_inputArg = 4194304;
 
 //BENCHMARK(BM_crypto_single_onetimeAuth)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg);
 //BENCHMARK(BM_crypto_single_onetimeAuth_and_verify)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg);
@@ -62,6 +62,12 @@ static void calc_thread_cost(benchmark::State& state) {
 
 //BENCHMARK(run_unit_tests);
 BENCHMARK(calc_thread_cost);
+
+BENCHMARK(BM_poly1305_authentication)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)
+		  ->Threads(1)->Threads(2)->Threads(4)->Threads(8)
+		  ->Threads(12)->Threads(16)->Threads(32)->Threads(48)
+		  ->Threads(128)
+		  ->UseManualTime();
 
 BENCHMARK(BM_multithread_xsalsa_sym_encrypt)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)
 		  ->Threads(1)->Threads(2)->Threads(4)->Threads(8)
