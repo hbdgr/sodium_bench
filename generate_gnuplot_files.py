@@ -32,7 +32,7 @@ def write_gnuplot_header(gnuplot_file, fun_name, plot_num):
     gnuplot_file.write("\n")
     gnuplot_file.write("set terminal pngcairo size 1200,2400 enhanced font 'Verdana,10'\n")
     gnuplot_file.write("set output '" + OUTPUT_DIR + "/" + fun_name + ".png'\n")
-    gnuplot_file.write("set multiplot layout " + str(plot_num) + ", 1 title 'Threaded Authenticated Encryption' font ',16'\n")
+    gnuplot_file.write("set multiplot layout " + str(plot_num) + ", 1 title '" + fun_name + "' font ',16'\n")
     gnuplot_file.write("set grid x y")
 
 def write_gnuplot_chart_title(gnuplot_file, title):
