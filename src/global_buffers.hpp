@@ -1,7 +1,6 @@
 #ifndef GLOBAL_BUFFERS_HPP
 #define GLOBAL_BUFFERS_HPP
 
-#include "threaded_utils.hpp"
 #include <boost/variant.hpp>
 
 template <size_t... args>

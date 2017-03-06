@@ -116,7 +116,8 @@ static void BM_multithread_xsalsa_sym_encrypt(benchmark::State& state) {
 	mbag.if_finish.at(state.thread_index) = true;
 	end = std::chrono::high_resolution_clock::now();
 	auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
-	auto all_time_cost = elapsed_seconds + thread_cost*state.threads*state.threads*state.iterations();
+	// state.threads twice because SetIterationTime seems to divide be one. Same with state.iterations()
+	auto all_time_cost = elapsed_seconds + thread_cost*state.threads*(state.threads-1)*state.iterations();
 	state.SetIterationTime(all_time_cost.count());
 
 	if (state.thread_index == 0) {
