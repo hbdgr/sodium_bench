@@ -2,6 +2,7 @@
 #define GLOBAL_BUFFERS_HPP
 
 #include <boost/variant.hpp>
+#include <random>
 
 template <size_t... args>
 using buffers = std::tuple<typename std::array<char, args>...>;
