@@ -7,6 +7,7 @@
 #include <cassert>
 #include <iostream>
 #include <mutex>
+#include <cmath>
 
 static std::chrono::duration<double> thread_cost;
 
