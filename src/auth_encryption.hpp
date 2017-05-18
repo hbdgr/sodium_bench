@@ -6,53 +6,9 @@
 #include <memory>
 #include <atomic>
 #include <mutex>
+#include "crypto_functions.hpp"
 #include "utils.hpp"
 
-struct cryptobox_keypair {
-	std::array<unsigned char, crypto_box_PUBLICKEYBYTES> public_key;
-	std::array<unsigned char, crypto_box_SECRETKEYBYTES> secret_key;
-};
-
-cryptobox_keypair generate_kyepair() {
-	cryptobox_keypair keys;
-	crypto_box_keypair(keys.public_key.data(),
-					   keys.secret_key.data());
-	return keys;
-}
-
-std::vector<char> cryptobox_encrypt(std::vector<char> &msg,
-									std::array<unsigned char, crypto_box_NONCEBYTES> &nonce,
-									std::array<unsigned char, crypto_box_PUBLICKEYBYTES> &public_key,
-									std::array<unsigned char, crypto_box_SECRETKEYBYTES> &secret_key) {
-
-	std::vector<char> cipher(msg.size()+crypto_box_MACBYTES);
-
-	if (crypto_box_easy(reinterpret_cast<unsigned char *>(cipher.data()),
-						reinterpret_cast<unsigned char *>(msg.data()),
-						msg.size(),
-						nonce.data(),
-						public_key.data(),
-						secret_key.data()) != 0) {
-		throw std::runtime_error{"Fail to auth encrypt msg"};
-	}
-	return cipher;
-}
-
-std::vector<char> cryptobox_decrypt (std::vector<char> &cipher,
-									std::array<unsigned char, crypto_box_NONCEBYTES> &nonce,
-									std::array<unsigned char, crypto_box_PUBLICKEYBYTES> &public_key,
-									std::array<unsigned char, crypto_box_SECRETKEYBYTES> &secret_key) {
-	std::vector<char> msg(cipher.size()-crypto_box_MACBYTES);
-	if (crypto_box_open_easy(reinterpret_cast<unsigned char *>(msg.data()),
-							 reinterpret_cast<unsigned char *>(cipher.data()),
-							 cipher.size(),
-							 nonce.data(),
-							 public_key.data(),
-							 secret_key.data()) != 0) {
-		throw std::runtime_error{"Fail to auth decrypt msg"};
-	}
-	return msg;
-}
 
 static void BM_crypto_box_auth_encryption(benchmark::State& state) {
 	if (sodium_init() == -1) {

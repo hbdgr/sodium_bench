@@ -3,7 +3,7 @@
 #include <cmath>
 #include <benchmark/benchmark.h>
 #include "utils.hpp"
-#include "unit_tests.hpp"
+#include "test/unit_tests.hpp"
 
 #include "sort_tests.hpp"
 #include "authentication.hpp"
@@ -11,6 +11,7 @@
 #include "auth_encryption.hpp"
 #include "multithread_encryption.hpp"
 #include "multithread_ram_encryption.hpp"
+#include "hashes.hpp"
 
 //BENCHMARK(bubble_sort)->RangeMultiplier(2)->Range(2, 8<<8)->Complexity();
 //BENCHMARK(std_sort)->RangeMultiplier(2)->Range(2, 8<<8)->Complexity();
@@ -61,22 +62,27 @@ static void calc_thread_cost(benchmark::State& state) {
 }
 
 //BENCHMARK(run_unit_tests);
-BENCHMARK(calc_thread_cost);
+//BENCHMARK(calc_thread_cost);
 
-BENCHMARK(BM_poly1305_authentication)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)
-		  ->Threads(1)->Threads(2)->Threads(4)->Threads(8)
-		  ->Threads(12)->Threads(16)->Threads(32)->Threads(48)
-		  ->UseManualTime();
+//BENCHMARK(BM_multithread_xsalsa_sym_encrypt_chunks8k)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)
+//		  ->Threads(1)->Threads(2)->Threads(4)->Threads(8)
+//		  ->Threads(12)->Threads(16)->Threads(32)->Threads(48)
+//		  ->UseManualTime();
 
-BENCHMARK(BM_multithread_xsalsa_sym_encrypt)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)
-		  ->Threads(1)->Threads(2)->Threads(4)->Threads(8)
-		  ->Threads(12)->Threads(16)->Threads(32)->Threads(48)
-		  ->UseManualTime();
+//BENCHMARK(BM_poly1305_authentication)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg);
+//		  ->Threads(1)->Threads(2)->Threads(4)->Threads(8)
+//		  ->Threads(12)->Threads(16)->Threads(32)->Threads(48)
+//		  ->UseManualTime();
 
-BENCHMARK(BM_multithread_xsalsa_sym_encrypt_nothreadcost)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)
-		  ->Threads(1)->Threads(2)->Threads(4)->Threads(8)
-		  ->Threads(12)->Threads(16)->Threads(32)->Threads(48)
-		  ->UseManualTime();
+//BENCHMARK(BM_multithread_xsalsa_sym_encrypt)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)
+//		  ->Threads(1)->Threads(2)->Threads(4)->Threads(8)
+//		  ->Threads(12)->Threads(16)->Threads(32)->Threads(48)
+//		  ->UseManualTime();
+
+//BENCHMARK(BM_multithread_xsalsa_sym_encrypt_nothreadcost)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)
+//		  ->Threads(1)->Threads(2)->Threads(4)->Threads(8)
+//		  ->Threads(12)->Threads(16)->Threads(32)->Threads(48)
+//		  ->UseManualTime();
 
 //BENCHMARK(BM_threaded_auth_encrypt)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)
 //		  ->Threads(1)->Threads(2)->Threads(4)->Threads(8)
@@ -84,15 +90,27 @@ BENCHMARK(BM_multithread_xsalsa_sym_encrypt_nothreadcost)->RangeMultiplier(2)->R
 //		  ->UseManualTime();
 
 //// anthenticated encryption and decryption
-BENCHMARK(BM_threaded_auth_encrypt_decrypt)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)
-		  ->Threads(1)->Threads(2)->Threads(4)->Threads(8)
-		  ->Threads(12)->Threads(16)->Threads(32)->Threads(48)
-		  ->UseManualTime();
+//BENCHMARK(BM_threaded_auth_encrypt_decrypt)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg)
+//		  ->Threads(1)->Threads(2)->Threads(4)->Threads(8)
+//		  ->Threads(12)->Threads(16)->Threads(32)->Threads(48)
+//		  ->UseManualTime();
 
-BENCHMARK(BM_staticData_encrypt_decrypt)->RangeMultiplier(2)->Range(Min_inputArg,Max_inputArg)
-		  ->Threads(1)->Threads(2)->Threads(4)->Threads(8)
-		  ->Threads(12)->Threads(16)->Threads(32)->Threads(48)
-		  ->UseManualTime();
+//BENCHMARK(BM_staticData_encrypt_decrypt)->RangeMultiplier(2)->Range(Min_inputArg,Max_inputArg)
+//		  ->Threads(1)->Threads(2)->Threads(4)->Threads(8)
+//		  ->Threads(12)->Threads(16)->Threads(32)->Threads(48)
+//		  ->UseManualTime();
 
+
+// poly1305 vs sha256
+//BENCHMARK(BM_crypto_sha256)->RangeMultiplier(2)->Range(Min_inputArg,Max_inputArg);
+//BENCHMARK(BM_crypto_sha512)->RangeMultiplier(2)->Range(Min_inputArg,Max_inputArg);
+//BENCHMARK(BM_crypto_single_onetimeAuth)->RangeMultiplier(2)->Range(Min_inputArg, Max_inputArg);
+
+
+#include "weld_encrypted_auth.hpp"
+// Weld arch -
+BENCHMARK(BM_weld_encrypt)->Arg(1)->Arg(2)->Arg(4)->Arg(8)->Arg(12)->Arg(16)
+                          ->Arg(64)->Arg(512)->Arg(512)->Arg(65536)->UseManualTime();
 
 BENCHMARK_MAIN()
+

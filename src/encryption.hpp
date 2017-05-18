@@ -16,38 +16,10 @@
  */
 
 #include <sodium.h>
+#include "crypto_functions.hpp"
 #include "utils.hpp"
 #include "data_container.hpp"
 
-
-std::vector<char> xsalaxa_crypto_stream(const size_t clen,
-										std::array<unsigned char, crypto_stream_NONCEBYTES> &nonce,
-										std::array<unsigned char, crypto_stream_KEYBYTES> &key) {
-
-	std::vector<char> c(clen);
-	crypto_stream(reinterpret_cast<unsigned char *>(c.data()),
-				  clen,
-				  nonce.data(),
-				  key.data());
-
-	return c;
-}
-
-std::vector<char> xsalsa_crypto_stream_xor(std::vector<char> &msg,
-										   std::array<unsigned char, crypto_stream_NONCEBYTES> &nonce,
-										   std::array<unsigned char, crypto_stream_KEYBYTES> &key) {
-
-	size_t msg_len = msg.size();
-	std::vector<char> c(msg_len);
-
-	crypto_stream_xor(reinterpret_cast<unsigned char *>(c.data()),
-					  reinterpret_cast<unsigned char *>(msg.data()),
-					  msg_len,
-					  nonce.data(),
-					  key.data());
-
-	return c;
-}
 
 static void BM_simple_XSalsa20_encryption(benchmark::State& state) {
 	if (sodium_init() == -1) {
@@ -194,4 +166,74 @@ static void BM_multithread_xsalsa_sym_encrypt_nothreadcost(benchmark::State& sta
 		mbag.clear_container();
 	}
 }
+
+static void BM_multithread_xsalsa_sym_encrypt_chunks8k(benchmark::State& state) {
+
+	data_container &mbag = data_container::get_m(state.threads, state.range(0), data_type::variant);
+	std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
+	if (state.thread_index == 0) {
+		// Setup code here.
+	}
+
+	// do nothing if thread is not necessary
+	if (mbag.if_finish.at(state.thread_index) == true) {
+		state.SkipWithError("To many threads for small data");
+	}
+
+	start = std::chrono::high_resolution_clock::now();
+	while (state.KeepRunning()) {
+
+		mbag.setup_data(data_type::variant_chunk8k);
+		{ size_t index = 0;
+		for(auto &part : mbag.splitted_msg_chunks.at(state.thread_index)) {
+			mbag.chunk_cipher.at(state.thread_index).at(index) =
+					xsalsa_crypto_stream_xor(part,
+											 mbag.nonce,
+											 mbag.alice_keys.secret_key);
+			index++;
+		}}
+		{ size_t index = 0;
+		for(auto &part : mbag.chunk_cipher.at(state.thread_index)) {
+			mbag.chunk_result.at(state.thread_index).at(index) =
+					xsalsa_crypto_stream_xor(part,
+											 mbag.nonce,
+											 mbag.alice_keys.secret_key);
+			index++;
+		}}
+
+		benchmark::ClobberMemory();
+	}
+	mbag.if_finish.at(state.thread_index) = true;
+	end = std::chrono::high_resolution_clock::now();
+	auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
+	state.SetIterationTime(elapsed_seconds.count());
+
+	if (state.thread_index == 0) {
+		bool all_finish = false;
+		while(!all_finish) {
+			for (const auto &b : mbag.if_finish) {
+				all_finish = true;
+				if(b == false) {
+					all_finish = false;
+				}
+			}
+			std::this_thread::yield();
+		}
+
+		// main check
+		std::string concentrated_result;
+		for(auto &part : mbag.chunk_result) {
+			concentrated_result += char_vector_tostring(thread_safe::concentrate_vector(part),false);
+		}
+
+		if (mbag.get_base_msg() != concentrated_result) {
+			std::cout << "FAIL TO CORRECTLY DECRYPT ;/\n";
+			std::cout << "L:" << mbag.get_base_msg() << '\n';
+			std::cout << "R:" << concentrated_result << '\n';
+		}
+		mbag.clear_container();
+
+	}
+}
+
 #endif // ENCRYPTION_HPP

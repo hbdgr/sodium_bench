@@ -87,6 +87,7 @@ std::vector<std::tuple<const char *, size_t>> chunk_char_array(std::array<char, 
 }
 
 std::vector<std::vector<char>> split_char_vector(std::vector<char> &vec, size_t parts_num);
+std::vector<std::vector<char>> chunk_char_vector(std::vector<char> &vec, size_t chunk_size);
 std::string char_vector_tostring(const std::vector<char> &vec, bool new_line=true);
 std::string print_splitted_char_vector(const std::vector<std::vector<char>> &vec, bool new_line=true);
 

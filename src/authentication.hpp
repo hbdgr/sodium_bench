@@ -4,28 +4,9 @@
 #endif // AUTHENTICATION_HPP
 
 #include <sodium.h>
+#include "crypto_functions.hpp"
 #include "global_buffer_variant.hpp"
 #include "data_container.hpp"
-
-std::array<unsigned char,crypto_onetimeauth_BYTES> poly1305_onetime_auth(std::vector<char> msg,
-																		 std::array<unsigned char,crypto_onetimeauth_KEYBYTES> key){
-
-	std::array<unsigned char,crypto_onetimeauth_BYTES> out;
-	crypto_onetimeauth(out.data(),
-					   reinterpret_cast<unsigned char *>(msg.data()),
-					   msg.size(),
-					   key.data());
-	return out;
-}
-int poly1305_onetime_auth_verify(std::array<unsigned char,crypto_onetimeauth_BYTES> out,
-								 std::vector<char> msg,
-								 std::array<unsigned char,crypto_onetimeauth_KEYBYTES> key) {
-
-	return crypto_onetimeauth_verify(out.data(),
-									 reinterpret_cast<unsigned char *>(msg.data()),
-									 msg.size(),
-									 key.data());
-}
 
 static void BM_crypto_manybuf_split(benchmark::State& state) {
 	if (sodium_init() == -1) {
@@ -85,9 +66,10 @@ static void BM_crypto_single_onetimeAuth(benchmark::State& state) {
 	std::string msg (state.range(0),'x');
 	size_t msg_len = state.range(0);
 
+	unsigned char out[crypto_onetimeauth_BYTES];
+	unsigned char key[crypto_onetimeauth_KEYBYTES];
+
 	while (state.KeepRunning()) {
-		unsigned char out[crypto_onetimeauth_BYTES];
-		unsigned char key[crypto_onetimeauth_KEYBYTES];
 
 		randombytes_buf(key, sizeof key);
 		crypto_onetimeauth(out, reinterpret_cast<const unsigned char *>(msg.c_str()), msg_len, key);

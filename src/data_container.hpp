@@ -4,7 +4,7 @@
 #include "global_buffer_variant.hpp"
 #include "auth_encryption.hpp"
 
-enum class data_type { generate, variant };
+enum class data_type { generate, variant, variant_chunk8k };
 
 constexpr size_t Max_Threads = 1024;
 struct data_container {
@@ -14,6 +14,13 @@ struct data_container {
 	cryptobox_keypair bob_keys;
 
 	std::vector<char> msg;
+
+	// for chunks version
+	std::vector<std::vector<std::vector<char>>> splitted_msg_chunks;
+	std::vector<std::vector<std::vector<char>>> chunk_cipher;
+	std::vector<std::vector<std::vector<char>>> chunk_result;
+
+
 	std::vector<std::vector<char>> splitted_msg;
 	std::vector<std::vector<char>> cipher;
 	std::vector<std::vector<char>> check_result;
@@ -57,6 +64,7 @@ struct data_container {
 			switch(dat) {
 				case data_type::generate  : fill_data_generate(); break;
 				case data_type::variant   : fill_data_variant();  break;
+			case data_type::variant_chunk8k : { size_t sis = 64; fill_data_variant_chunks(sis); break; }
 				default:
 					std::cerr << "data container: data_type not known\n";
 			}
@@ -89,11 +97,27 @@ private:
 		cipher.resize(threads);
 		check_result.resize(threads);
 
+		splitted_msg_chunks.resize(threads);
+		chunk_cipher.resize(threads);
+		chunk_result.resize(threads);
+
 		// refactor proposal
 		// It would be better be split different usages for example to child classes.
 		onetime_auth_key = generate_random_array<unsigned char,crypto_onetimeauth_KEYBYTES>();
 		onetime_auth_out.resize(threads);
 	}
+
+	void chunk_splitted_msg(size_t chunk_size){
+		//splitted_msg_8kchunks
+		{ size_t thread_index = 0;
+		for(auto &thread_part: splitted_msg) {
+			splitted_msg_chunks.at(thread_index) = chunk_char_vector(thread_part,chunk_size);
+			chunk_cipher.at(thread_index).resize(splitted_msg_chunks.at(thread_index).size());
+			chunk_result.at(thread_index).resize(splitted_msg_chunks.at(thread_index).size());
+			thread_index++;
+		}}
+	}
+
 	void fill_data_generate () {
 		msg = generate_random_char_vector(base_msg_len);
 		splitted_msg = split_char_vector(msg, threads_num);
@@ -104,6 +128,15 @@ private:
 
 		chunk_visitor cv(threads_num);
 		splitted_msg = boost::apply_visitor(cv, variant_arr);
+		msg = thread_safe::concentrate_vector(splitted_msg);
+	}
+	void fill_data_variant_chunks (size_t chunk_size) {
+		size_t array_index = args_map.at(base_msg_len);
+		auto variant_arr = dynamic_get(array_index, global_buffers);
+
+		chunk_visitor cv(threads_num);
+		splitted_msg = boost::apply_visitor(cv, variant_arr);
+		chunk_splitted_msg(chunk_size);
 		msg = thread_safe::concentrate_vector(splitted_msg);
 	}
 
