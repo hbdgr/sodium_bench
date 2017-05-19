@@ -83,8 +83,8 @@ std::vector<char> secretbox_easy_decrypt(std::vector<char> &cipher,
 
 // stream sym encryption
 
-std::vector<char> xsalaxa_crypto_stream(const size_t clen, std::array<unsigned char,
-                                        crypto_stream_NONCEBYTES> &nonce,
+std::vector<char> xsalaxa_crypto_stream(const size_t clen,
+                                        std::array<unsigned char, crypto_stream_NONCEBYTES> &nonce,
                                         std::array<unsigned char, crypto_stream_KEYBYTES> &key) {
 
 	std::vector<char> c(clen);
@@ -97,8 +97,7 @@ std::vector<char> xsalaxa_crypto_stream(const size_t clen, std::array<unsigned c
 }
 
 std::vector<char> xsalsa_crypto_stream_xor(std::vector<char> &msg,
-                                           std::array<unsigned char,
-                                           crypto_stream_NONCEBYTES> &nonce,
+                                           std::array<unsigned char, crypto_stream_NONCEBYTES> &nonce,
                                            std::array<unsigned char, crypto_stream_KEYBYTES> &key) {
 
 	size_t msg_len = msg.size();

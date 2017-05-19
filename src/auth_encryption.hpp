@@ -1,7 +1,6 @@
 #ifndef AUTH_ENCRYPTION_HPP
 #define AUTH_ENCRYPTION_HPP
 
-#include <sodium.h>
 #include <thread>
 #include <memory>
 #include <atomic>

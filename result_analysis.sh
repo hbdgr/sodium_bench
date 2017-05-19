@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+readonly WELD_ENCRYPT_3D=1
 
 readonly FILENAME="results.txt"
 readonly PROGNAME="sodium_bench"
@@ -93,6 +94,15 @@ function gen_charts() {
 }
 
 function gen_gnuplot_files() {
+	if [[ $WELD_ENCRYPT_3D == 1 ]]
+	then
+		# generate 3d charts manualy
+		gnuplot 3d_weld_encryption_buf_num.gnuplot
+		gnuplot 3d_weld_encryption_buf_size.gnuplot
+
+		# and exit because auto gen charts have no sense for this case
+		exit 0
+	fi
 	#python implementation
 	./generate_gnuplot_files.py
 }
@@ -108,16 +118,35 @@ function gen_data_Mbps_gunpfiles() {
 
 		local fun_name=`echo $line | awk -F'/' '{ print $1 }'`
 		local threads=`echo $line | awk -F"threads:" '{ print $2  }' | awk '{ print $1 }'`
+		if [[ -z $threads ]]
+		then
+			threads=1
+		fi
+
 		local size=`echo $line | awk -F'/' '{ print $2 }' | awk '{ print $1 }'`
+		local second_arg=`echo $line | awk -F'/' '{ print $3 }' | awk '{ print $1 }'`
+
 		local time=`echo $line | awk '{ print $2 }'`
 		local cpu_time=`echo $line | awk '{ print $4 }'`
 
 		local Mbps=`calc_Mbps "${size}" "${time}"`
 
-		#printf "th [${threads}] fun_name [${fun_name}]\n"
-		printf "`to_bytes ${size}` ${time}\n" >> "${GNUPLOT_DATA_DIR}/${fun_name}-${threads}-latency.data"
-		printf "`to_bytes ${size}` ${Mbps}\n" >> "${GNUPLOT_DATA_DIR}/${fun_name}-${threads}-Mbps.data"
-		printf "`to_bytes ${size}` ${cpu_time}\n" >> "${GNUPLOT_DATA_DIR}/${fun_name}-${threads}-cpu_time.data"
+		printf "Generating data for: fun_name [${fun_name}], threads[${threads}],"
+			printf "size [${size}], second_arg [${second_arg}],"
+			printf "time [${time}], cpu_time [${cpu_time}]\n"
+
+		if [[ -n second_arg ]]
+		then
+			# division to get spec buffer size in weld_encryption
+			average_size=$(echo "scale=4; `to_bytes ${size}` / `to_bytes ${second_arg}`" | bc)
+			printf "`to_bytes ${size}` `to_bytes ${second_arg}`   ${Mbps}\n" >> "${GNUPLOT_DATA_DIR}/${fun_name}-${threads}-buf_num-Mbps.data"
+			printf "`to_bytes ${size}` $average_size  ${Mbps}\n" >> "${GNUPLOT_DATA_DIR}/${fun_name}-${threads}-buf_size-Mbps.data"
+
+		else
+			printf "`to_bytes ${size}` ${time}\n" >> "${GNUPLOT_DATA_DIR}/${fun_name}-${threads}-latency.data"
+			printf "`to_bytes ${size}` ${Mbps}\n" >> "${GNUPLOT_DATA_DIR}/${fun_name}-${threads}-Mbps.data"
+			printf "`to_bytes ${size}` ${cpu_time}\n" >> "${GNUPLOT_DATA_DIR}/${fun_name}-${threads}-cpu_time.data"
+		fi
 
 	done < "${FILENAME}"
 }

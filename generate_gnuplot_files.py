@@ -25,6 +25,9 @@ def get_available_threads(list_of_files, fun_name, parameter):
     for file in list_of_files:
         if fun_name in file:
             threads = file.replace(".data", "").split("-",maxsplit=2)[1]
+            print(fun_name + " " + " threads:" + threads)
+            if threads == "":
+                return [1] # one thread case
             output.add(int(threads))
     return sorted(output)
 
