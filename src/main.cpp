@@ -112,8 +112,8 @@ static void calc_thread_cost(benchmark::State& state) {
 //BENCHMARK(BM_weld_encrypt)->Arg(1)->Arg(2)->Arg(4)->Arg(8)->Arg(12)->Arg(16)->Arg(80)
 //                          ->Arg(64)->Arg(124)->Arg(512)->Arg(1024)->Arg(4096)->Arg(65536)->UseManualTime();
 static void buffs_args(benchmark::internal::Benchmark* b) {
-  for (int pac_size = 64; pac_size <= 1024*1024*16; pac_size *= 2)
-    for (int bufs = 1; bufs <= 1024*64; bufs *= 2)
+  for (int pac_size = 64; pac_size <= 1024*1024*256; pac_size *= 2)
+    for (int bufs = 1; bufs <= 1024*32; bufs *= 2)
       b->Args({pac_size, bufs});
 }
 
