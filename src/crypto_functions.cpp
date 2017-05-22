@@ -48,15 +48,15 @@ std::vector<char> cryptobox_decrypt(std::vector<char> &cipher,
 
 // sym key auth encryption
 
-std::vector<char> secretbox_easy_encrypt(std::vector<char> &msg,
+std::vector<unsigned char> secretbox_easy_encrypt(std::vector<unsigned char> &msg,
                                          std::array<unsigned char, crypto_secretbox_NONCEBYTES> &nonce,
                                          std::array<unsigned char, crypto_secretbox_KEYBYTES> &key) {
 
 	// cipher+auth-tag
-	std::vector<char> cipher(msg.size()+crypto_secretbox_MACBYTES);
+	std::vector<unsigned char> cipher(msg.size()+crypto_secretbox_MACBYTES);
 
-	if (crypto_secretbox_easy(reinterpret_cast<unsigned char *>(cipher.data()),
-	                          reinterpret_cast<unsigned char *>(msg.data()),
+	if (crypto_secretbox_easy(cipher.data(),
+	                          msg.data(),
 	                          msg.size(),
 	                          nonce.data(),
 	                          key.data() ) != 0) {
@@ -66,13 +66,13 @@ std::vector<char> secretbox_easy_encrypt(std::vector<char> &msg,
 	return cipher;
 }
 
-std::vector<char> secretbox_easy_decrypt(std::vector<char> &cipher,
+std::vector<unsigned char> secretbox_easy_decrypt(std::vector<unsigned char> &cipher,
                                          std::array<unsigned char, crypto_secretbox_NONCEBYTES> &nonce,
                                          std::array<unsigned char, crypto_secretbox_KEYBYTES> &key) {
 
-	std::vector<char> msg(cipher.size()-crypto_secretbox_MACBYTES);
-	if (crypto_secretbox_open_easy(reinterpret_cast<unsigned char *>(msg.data()),
-	                               reinterpret_cast<unsigned char *>(cipher.data()),
+	std::vector<unsigned char> msg(cipher.size()-crypto_secretbox_MACBYTES);
+	if (crypto_secretbox_open_easy(msg.data(),
+	                               cipher.data(),
 	                               cipher.size(),
 	                               nonce.data(),
 	                               key.data()) != 0) {

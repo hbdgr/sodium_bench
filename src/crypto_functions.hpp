@@ -22,11 +22,11 @@ std::vector<char> cryptobox_decrypt (std::vector<char> &cipher,
                                     std::array<unsigned char, crypto_box_PUBLICKEYBYTES> &public_key,
                                     std::array<unsigned char, crypto_box_SECRETKEYBYTES> &secret_key);
 
-std::vector<char> secretbox_easy_encrypt(std::vector<char> &msg,
+std::vector<unsigned char> secretbox_easy_encrypt(std::vector<unsigned char> &msg,
                                          std::array<unsigned char, crypto_secretbox_NONCEBYTES> &nonce,
                                          std::array<unsigned char, crypto_secretbox_KEYBYTES> &key);
 
-std::vector<char> secretbox_easy_decrypt(std::vector<char> &cipher,
+std::vector<unsigned char> secretbox_easy_decrypt(std::vector<unsigned char> &cipher,
                                          std::array<unsigned char, crypto_secretbox_NONCEBYTES> &nonce,
                                          std::array<unsigned char, crypto_secretbox_KEYBYTES> &key);
 

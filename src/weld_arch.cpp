@@ -1,5 +1,57 @@
 #include "weld_arch.hpp"
 
+std::vector<unsigned char> generate_randombyte_buffer(size_t size) {
+
+	std::random_device rd;  //Will be used to obtain a seed for the random number engine
+	std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+	std::uniform_int_distribution<> dis(0, std::numeric_limits<unsigned char>::max());
+
+	std::vector<unsigned char> vector_data;
+	vector_data.reserve(size);
+	std::cout << "Generating big buffer: " << size << "bytes\n";
+	size_t step = size/100; // 1% from 100% step
+	for(size_t i=0, j=0; i<size; ++i) {
+		if(i%step == 0) {
+			std::cout << "\r";
+			std::cout << "[" << j << "%] done";
+			std::cout << std::flush;
+			j+=1;
+		}
+
+		vector_data.push_back(dis(gen));
+	}
+	std::cout << '\n';
+	return vector_data;
+}
+
+std::vector<packet_draf> chunk_custom_buffors(const std::vector<unsigned char> &stat_buff,
+										 size_t all_size,
+										 size_t num_of_dst) {
+
+	assert(num_of_dst > 0  && "Can not part to zero parts");
+	assert(stat_buff.size() > 0 && "Can not part zero size vector");
+	if(num_of_dst > all_size) {
+		//std::cerr << "WARNING, dst number is greater than custom data size : decreasing parts to max ["
+		//		  << all_size << "] parts\n";
+		num_of_dst = all_size;
+	}
+
+	std::vector<packet_draf> vec_parts;
+
+	size_t actual_pos = 0;
+	size_t main_len = all_size;
+	for (size_t i = 0;i < num_of_dst; ++i) {
+		double end_dist = (i+1)*(main_len/static_cast<double>(num_of_dst));
+
+		auto begin_pos = stat_buff.begin() + actual_pos;
+		actual_pos = std::ceil(end_dist);
+		auto end_pos = (stat_buff.begin() + all_size +1) - ((actual_pos >= main_len) ? 0 : (main_len - actual_pos));
+
+		vec_parts.push_back({ i, std::vector<unsigned char>(begin_pos, end_pos)});
+	}
+	return vec_parts;
+}
+
 std::vector<packet_draf> generate_random_packets(size_t packets_num, size_t num_of_dst) {
 
 	std::random_device rd;  //Will be used to obtain a seed for the random number engine
@@ -12,7 +64,7 @@ std::vector<packet_draf> generate_random_packets(size_t packets_num, size_t num_
 	for (size_t i=0; i < packets_num; ++i) {
 		// starting from A , B ...
 		auto rand_dst = rn_dst(gen);
-		auto rand_data = generate_random_char_vector(rn_size(gen));
+		auto rand_data = generate_random_uchar_vector(rn_size(gen));
 		packet_draf packet {rand_dst, rand_data};
 		l_packets.emplace_back(packet);
 	}
@@ -80,7 +132,7 @@ void weld_manager_continous::print_packets() {
 	for(auto record : all_data) {
 		std::cout << "dst: " << record.first
 				  << ", size: " << record.second.size()
-				  << " ,data: [" << char_vector_tostring(record.second,false)<< "]\n";
+				  << " ,data: [" << uchar_vector_tostring(record.second,false)<< "]\n";
 	}
 }
 

@@ -12,8 +12,10 @@
 static std::chrono::duration<double> thread_cost;
 
 char generate_random_char();
+char generate_random_uchar();
 std::string generate_random_string (size_t length);
 std::vector<char> generate_random_char_vector (size_t length);
+std::vector<unsigned char> generate_random_uchar_vector (size_t length);
 
 template<typename T,std::size_t SIZE>
 std::array<T, SIZE> generate_random_array () {
@@ -89,6 +91,7 @@ std::vector<std::tuple<const char *, size_t>> chunk_char_array(std::array<char, 
 std::vector<std::vector<char>> split_char_vector(std::vector<char> &vec, size_t parts_num);
 std::vector<std::vector<char>> chunk_char_vector(std::vector<char> &vec, size_t chunk_size);
 std::string char_vector_tostring(const std::vector<char> &vec, bool new_line=true);
+std::string uchar_vector_tostring(const std::vector<unsigned char> &vec, bool new_line=true);
 std::string print_splitted_char_vector(const std::vector<std::vector<char>> &vec, bool new_line=true);
 
 struct safe_printer {

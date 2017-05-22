@@ -16,6 +16,15 @@ char generate_random_char() {
 	return Charset[dis(gen)];
 }
 
+char generate_random_uchar() {
+
+	std::random_device rd;  //Will be used to obtain a seed for the random number engine
+	std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+	std::uniform_int_distribution<> dis(0, std::numeric_limits<unsigned char>::max());
+
+	return dis(gen);
+}
+
 std::string generate_random_string(size_t length) {
 	std::string str(length, 0);
 	std::generate_n(str.begin(), length, generate_random_char);
@@ -28,6 +37,11 @@ std::vector<char> generate_random_char_vector(size_t length) {
 	return vec;
 }
 
+std::vector<unsigned char> generate_random_uchar_vector(size_t length) {
+	std::vector<unsigned char> vec(length);
+	std::generate_n(vec.begin(), length, generate_random_uchar);
+	return vec;
+}
 
 std::vector<std::vector<char> > split_char_vector(std::vector<char> &vec, size_t parts_num) {
 	assert(parts_num > 0  && "Can not part to zero parts");
@@ -87,6 +101,14 @@ std::string char_vector_tostring(const std::vector<char> &vec, bool new_line) {
 	std::stringstream ss;
 	for (auto &i : vec) {
 		ss << i;
+	}
+	if (new_line) ss << std::endl;
+	return ss.str();
+}
+std::string uchar_vector_tostring(const std::vector<unsigned char> &vec, bool new_line) {
+	std::stringstream ss;
+	for (auto &i : vec) {
+		ss << std::hex << i;
 	}
 	if (new_line) ss << std::endl;
 	return ss.str();
