@@ -113,8 +113,8 @@ static void calc_thread_cost(benchmark::State& state) {
 //                          ->Arg(64)->Arg(124)->Arg(512)->Arg(1024)->Arg(4096)->Arg(65536)->UseManualTime();
 static void buffs_args(benchmark::internal::Benchmark* b) {
 	double multiplier = std::pow(2, 0.25);
-	for (int pac_size = 64; pac_size <= 1024*1024*512; pac_size *= multiplier)
-		for (int bufs = 1; bufs <= 1024*32; bufs *= 2)
+	for (int pac_size = 64; pac_size <= 1024*1024*1024; pac_size *= multiplier)
+		for (int bufs = 1; bufs <= 1024*32; bufs *= multiplier)
 			b->Args({pac_size, bufs});
 }
 

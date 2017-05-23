@@ -72,7 +72,7 @@ static void BM_weld_encrypt_decrypt(benchmark::State& state) {
 	//m_man.print_status();
 }
 
-constexpr size_t buffer_max_size = 536870912;
+constexpr size_t buffer_max_size = 1073741824;
 static std::vector<unsigned char> random_buf = generate_randombyte_buffer(buffer_max_size);
 
 static void BM_weld_encrypt(benchmark::State& state) {

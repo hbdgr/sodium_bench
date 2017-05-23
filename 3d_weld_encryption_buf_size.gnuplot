@@ -1,4 +1,4 @@
-set terminal pngcairo size 1920,1600 enhanced font 'Verdana,8'
+set terminal qt size 1920,1600 enhanced font 'Verdana,8'
 set output 'results/3d_weld_encryption_buf_size.png'
 set title "Libsodium authenticated encryption with symmetric keys\n'Encryption: XSalsa20 stream cipher, Authentication: Poly1305 MAC' "
 
@@ -35,4 +35,4 @@ set ytics ('1B' 1,'2B' 2,'4B' 4,'8B' 8,'16B' 16,'32B' 32,'64B' 64,'128B' 128,'25
 
 splot 'data_files/BM_weld_encrypt-1-buf_size-Mbps.data'
 
-#pause -1 "Hit return to continue"
+pause -1 "Hit return to continue"
