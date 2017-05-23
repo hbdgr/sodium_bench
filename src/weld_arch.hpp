@@ -17,18 +17,18 @@ std::vector<unsigned char> generate_randombyte_buffer(size_t size);
 std::vector<packet_draf> generate_random_packets(size_t packets_num, size_t num_of_dst);
 
 std::vector<packet_draf> chunk_custom_buffors(const std::vector<unsigned char> &stat_buff,
-										 size_t all_size,
-										 size_t num_of_dst);
+                                                                size_t all_size,
+                                                                size_t num_of_dst);
 
 class weld_manager_continous {
 public:
 	weld_manager_continous() {
 		for (short start = 0; start != std::numeric_limits<short>::max(); start++) {
-			all_data[start].reserve(65536);
+			all_data[start].reserve(1024*1024);
 		}
 	}
 
-	void eat(std::vector<packet_draf> packets);
+	void eat(std::vector<packet_draf> &&packets);
 	void encrypt_all_buffers(std::array<unsigned char, crypto_secretbox_NONCEBYTES> &nonce,
 	                         std::array<unsigned char, crypto_secretbox_KEYBYTES> &key);
 	void decrypt_all_buffers(std::array<unsigned char, crypto_secretbox_NONCEBYTES> &nonce,

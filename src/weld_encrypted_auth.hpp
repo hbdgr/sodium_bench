@@ -22,7 +22,7 @@ static void BM_weld_packets_eat(benchmark::State& state) {
 	while (state.KeepRunning()) {
 		benchmark::DoNotOptimize(m_man);
 
-		m_man.eat(packets);
+		m_man.eat(std::move(packets));
 
 		benchmark::ClobberMemory();
 	}
@@ -48,7 +48,7 @@ static void BM_weld_encrypt_decrypt(benchmark::State& state) {
 	size_t dst_num = state.range(1);
 	auto packets = generate_random_packets((state.range(0)/64),dst_num);
 	weld_manager_continous m_man;
-	m_man.eat(packets);
+	m_man.eat(std::move(packets));
 
 	//m_man.print_status();
 
@@ -88,7 +88,7 @@ static void BM_weld_encrypt(benchmark::State& state) {
 	size_t dst_num = state.range(1);
 	auto packets = chunk_custom_buffors(random_buf, state.range(0), dst_num);
 	weld_manager_continous m_man;
-	m_man.eat(packets);
+	m_man.eat(std::move(packets));
 
 	//m_man.print_status();
 

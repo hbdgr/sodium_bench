@@ -25,8 +25,8 @@ std::vector<unsigned char> generate_randombyte_buffer(size_t size) {
 }
 
 std::vector<packet_draf> chunk_custom_buffors(const std::vector<unsigned char> &stat_buff,
-										 size_t all_size,
-										 size_t num_of_dst) {
+                                                               size_t all_size,
+                                                               size_t num_of_dst) {
 
 	assert(num_of_dst > 0  && "Can not part to zero parts");
 	assert(stat_buff.size() > 0 && "Can not part zero size vector");
@@ -46,8 +46,8 @@ std::vector<packet_draf> chunk_custom_buffors(const std::vector<unsigned char> &
 		auto begin_pos = stat_buff.begin() + actual_pos;
 		actual_pos = std::ceil(end_dist);
 		auto end_pos = (stat_buff.begin() + all_size +1) - ((actual_pos >= main_len) ? 0 : (main_len - actual_pos));
-
-		vec_parts.push_back({ i, std::vector<unsigned char>(begin_pos, end_pos)});
+		packet_draf loc {i,  std::vector<unsigned char>(begin_pos, end_pos)};
+		vec_parts.emplace_back(std::move(loc));
 	}
 	return vec_parts;
 }
@@ -71,7 +71,7 @@ std::vector<packet_draf> generate_random_packets(size_t packets_num, size_t num_
 	return l_packets;
 }
 
-void weld_manager_continous::eat(std::vector<packet_draf> packets) {
+void weld_manager_continous::eat(std::vector<packet_draf> &&packets) {
 
 	for(auto &pac : packets) {
 
@@ -140,7 +140,7 @@ void continuous_memory_crypto() {
 
 	auto packets = generate_random_packets(10,1);
 	weld_manager_continous m_man;
-	m_man.eat(packets);
+	m_man.eat(std::move(packets));
 
 	m_man.print_status();
 }
