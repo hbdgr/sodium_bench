@@ -14,17 +14,19 @@ struct packet_draf {
 };
 
 std::vector<unsigned char> generate_randombyte_buffer(size_t size);
-std::vector<packet_draf> generate_random_packets(size_t packets_num, size_t num_of_dst);
+std::vector<packet_draf> generate_random_packets(size_t packets_num, short num_of_dst);
 
 std::vector<packet_draf> chunk_custom_buffors(const std::vector<unsigned char> &stat_buff,
-                                                                size_t all_size,
-                                                                size_t num_of_dst);
+                                              size_t all_size,
+                                              short num_of_dst);
+
+constexpr size_t buffer_max_size = 1073741824;
 
 class weld_manager_continous {
 public:
-	weld_manager_continous() {
-		for (short start = 0; start != std::numeric_limits<short>::max(); start++) {
-			all_data[start].reserve(1024*1024);
+	weld_manager_continous(size_t num_of_buffers) {
+		for (short start = 0; start != num_of_buffers; start++) {
+			all_data[start].reserve(buffer_max_size/num_of_buffers);
 		}
 	}
 
@@ -40,9 +42,5 @@ void print_packets();
 private:
 	std::unordered_map<short, std::vector<unsigned char>> all_data;
 };
-
-void continuous_memory_crypto();
-
-void noncontinuous_memory_crypto();
 
 #endif // WELD_ARCH_HPP

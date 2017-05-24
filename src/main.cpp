@@ -114,8 +114,8 @@ static void calc_thread_cost(benchmark::State& state) {
 static void buffs_args(benchmark::internal::Benchmark* b) {
 	double multiplier = std::pow(2, 0.25);
 	for (int pac_size = 64; pac_size <= 1024*1024*1024; pac_size *= multiplier)
-		for (int bufs = 1; bufs <= 1024*32; bufs *= multiplier)
-			b->Args({pac_size, bufs});
+		for (double bufs = 1; bufs <= 1024*32; bufs *= multiplier)
+			b->Args({static_cast<int>(pac_size), static_cast<int>(bufs)});
 }
 
 //BENCHMARK(BM_weld_encrypt_decrypt)->UseManualTime()

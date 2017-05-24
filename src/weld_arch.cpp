@@ -26,7 +26,7 @@ std::vector<unsigned char> generate_randombyte_buffer(size_t size) {
 
 std::vector<packet_draf> chunk_custom_buffors(const std::vector<unsigned char> &stat_buff,
                                                                size_t all_size,
-                                                               size_t num_of_dst) {
+                                                               short int num_of_dst) {
 
 	assert(num_of_dst > 0  && "Can not part to zero parts");
 	assert(stat_buff.size() > 0 && "Can not part zero size vector");
@@ -40,7 +40,7 @@ std::vector<packet_draf> chunk_custom_buffors(const std::vector<unsigned char> &
 
 	size_t actual_pos = 0;
 	size_t main_len = all_size;
-	for (size_t i = 0;i < num_of_dst; ++i) {
+	for (short int i = 0;i < num_of_dst; ++i) {
 		double end_dist = (i+1)*(main_len/static_cast<double>(num_of_dst));
 
 		auto begin_pos = stat_buff.begin() + actual_pos;
@@ -52,11 +52,11 @@ std::vector<packet_draf> chunk_custom_buffors(const std::vector<unsigned char> &
 	return vec_parts;
 }
 
-std::vector<packet_draf> generate_random_packets(size_t packets_num, size_t num_of_dst) {
+std::vector<packet_draf> generate_random_packets(size_t packets_num, short int num_of_dst) {
 
 	std::random_device rd;  //Will be used to obtain a seed for the random number engine
 	std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-	std::uniform_int_distribution<> rn_dst(1, num_of_dst);
+	std::uniform_int_distribution<short int> rn_dst(1, num_of_dst);
 	std::uniform_int_distribution<> rn_size(64,64);
 
 	std::vector<packet_draf> l_packets;
@@ -86,7 +86,6 @@ void weld_manager_continous::encrypt_all_buffers(std::array<unsigned char, crypt
                                                  std::array<unsigned char, crypto_secretbox_KEYBYTES> &key) {
 
 	for(auto &data : all_data) {
-		if ( data.second.size() == 0 ) continue;
 		data.second = secretbox_easy_encrypt(data.second, nonce, key);
 	}
 }
@@ -95,7 +94,6 @@ void weld_manager_continous::decrypt_all_buffers(std::array<unsigned char, crypt
                                                  std::array<unsigned char, crypto_secretbox_KEYBYTES> &key) {
 
 	for(auto &data : all_data) {
-		if ( data.second.size() == 0 ) continue;
 		data.second = secretbox_easy_decrypt(data.second, nonce, key);
 	}
 }
@@ -134,17 +132,4 @@ void weld_manager_continous::print_packets() {
 				  << ", size: " << record.second.size()
 				  << " ,data: [" << uchar_vector_tostring(record.second,false)<< "]\n";
 	}
-}
-
-void continuous_memory_crypto() {
-
-	auto packets = generate_random_packets(10,1);
-	weld_manager_continous m_man;
-	m_man.eat(std::move(packets));
-
-	m_man.print_status();
-}
-
-void noncontinuous_memory_crypto() {
-
 }
