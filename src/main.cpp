@@ -12,6 +12,7 @@
 #include "multithread_encryption.hpp"
 #include "multithread_ram_encryption.hpp"
 #include "hashes.hpp"
+#include "align_crypto_test.hpp"
 
 //BENCHMARK(bubble_sort)->RangeMultiplier(2)->Range(2, 8<<8)->Complexity();
 //BENCHMARK(std_sort)->RangeMultiplier(2)->Range(2, 8<<8)->Complexity();
@@ -124,8 +125,39 @@ static void buffs_args(benchmark::internal::Benchmark* b) {
 BENCHMARK(BM_weld_encrypt)->UseManualTime()
                           ->Apply(buffs_args);
 
+//BENCHMARK(BM_weld_simple_encrypt)->UseManualTime()
+//                                 ->Apply(buffs_args);
+
 //BENCHMARK(BM_weld_packets_eat)->Arg(1)->Arg(2)->Arg(4)->Arg(8)->Arg(12)->Arg(16)->Arg(80)
 //                          ->Arg(64)->Arg(124)->Arg(512)->Arg(1024)->Arg(4096)->Arg(65536)->UseManualTime();
 
+//static void align_args(benchmark::internal::Benchmark* b) {
+//	for (int bytes_start = 0; bytes_start <= 1024; bytes_start+=3)
+//			b->Arg(static_cast<int>(bytes_start));
+//}
+//BENCHMARK(BM_align_test)->UseManualTime()
+//                        ->Apply(align_args);
+
 BENCHMARK_MAIN()
 
+/*
+
+static std::vector<std::pair<int,int>> buffs_args() {
+	std::vector<std::pair<int,int>> local_args;
+	double multiplier = std::pow(2, 2);
+	for (int pac_size = 64; pac_size <= 1024*1024; pac_size *= multiplier)
+		for (double bufs = 1; bufs <= 1024*16; bufs *= multiplier)
+			local_args.emplace_back(std::make_pair(pac_size, bufs));
+
+	return local_args;
+}
+
+int main (int argc, char** argv) {
+	auto my_args = buffs_args();
+
+	for(auto &i : my_args) {
+		std::cout << i.first << " - " << i.second << "\n";
+	}
+	return 0;
+}
+*/

@@ -3,6 +3,7 @@
 
 #include "crypto_functions.hpp"
 #include "weld_arch.hpp"
+#include "global_buffers.hpp"
 
 
 static void BM_weld_packets_eat(benchmark::State& state) {
@@ -67,7 +68,6 @@ static void BM_weld_encrypt_decrypt(benchmark::State& state) {
 	//m_man.print_status();
 }
 
-static std::vector<unsigned char> random_buf = generate_randombyte_buffer(buffer_max_size);
 
 static void BM_weld_encrypt(benchmark::State& state) {
 	if (sodium_init() == -1) {

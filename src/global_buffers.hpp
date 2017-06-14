@@ -4,6 +4,15 @@
 #include <boost/variant.hpp>
 #include <random>
 
+// simple at start
+
+constexpr size_t buffer_max_size = 1073741824/1024;
+std::vector<unsigned char> generate_randombyte_buffer(size_t size);
+
+static std::vector<unsigned char> random_buf = generate_randombyte_buffer(buffer_max_size);
+
+// at compile time
+
 template <size_t... args>
 using buffers = std::tuple<typename std::array<char, args>...>;
 

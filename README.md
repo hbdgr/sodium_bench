@@ -16,10 +16,10 @@ All data from benchmark should be placed in "data_files"  directory.
 Gnuplot charts will be placed in "output" directory.
 
 
-Project is easy to extend to benchmark other functionalities by writing next google_benchmark style functions in "src".
+Project is easy to extend to benchmark other functionalities by writing next google_benchmark style functions in "src" or
+by choosing the appropriate predefined functions, only uncomment them in src/main.cpp.
 
-
-Result_analysis.sh script works half-generic, it takes all benchmark functions started by "BM"
+Result_analysis.sh script works only half-generic, it takes all benchmark functions started by "BM"
 ```
 $ ./result_analysis.sh --help
 usage: sodium_bench options
@@ -35,5 +35,8 @@ OPTIONS:
 Gnuplot scripts are not generic and should be written (or copied) for all new functions.
 
 Example results, tested on (2 X 2500 MHz CPU s)[AMD A4-4300M]:
+
+![alt tag](https://raw.githubusercontent.com/hbdgr/sodium_bench/master/results/AMD_A4-4300M/3d_weld_encryption_buf_size.png)
+![alt tag](https://raw.githubusercontent.com/hbdgr/sodium_bench/master/results/AMD_A4-4300M/3d_weld_encryption_buf_num.png)
 ![alt tag](https://raw.githubusercontent.com/hbdgr/sodium_bench/master/examples/Auth_Encypt.png)
 ![alt tag](https://raw.githubusercontent.com/hbdgr/sodium_bench/master/examples/Auth_Encypt_Decrypt.png)

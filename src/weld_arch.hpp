@@ -7,20 +7,19 @@
 
 #include "crypto_functions.hpp"
 #include "utils.hpp"
+#include "global_buffers.hpp"
 
 struct packet_draf {
 	short m_dst;
 	std::vector<unsigned char> m_data;
 };
 
-std::vector<unsigned char> generate_randombyte_buffer(size_t size);
 std::vector<packet_draf> generate_random_packets(size_t packets_num, short num_of_dst);
 
 std::vector<packet_draf> chunk_custom_buffors(const std::vector<unsigned char> &stat_buff,
                                               size_t all_size,
                                               short num_of_dst);
 
-constexpr size_t buffer_max_size = 1073741824;
 
 class weld_manager_continous {
 public:
